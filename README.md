@@ -4,25 +4,12 @@
 
 [![NPM](https://img.shields.io/npm/v/maco-ui.svg)](https://www.npmjs.com/package/maco-ui) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+![Image capture of maco-ui](/documentation/maco_capture.PNG)
+
 ## Install
 
 ```bash
 npm install --save maco-ui
-```
-
-## Usage
-
-```jsx
-import React, { Component } from 'react'
-
-import MyComponent from 'maco-ui'
-import 'maco-ui/dist/index.css'
-
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
-}
 ```
 
 ## License
