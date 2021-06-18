@@ -33,12 +33,12 @@ const SplitContainer = (props) => {
         
         // get all splits with default size values
         let default_splits = props.children
-            .filter((e) => e.props.defaultSize)
+            .filter((e) => e.props.defaultsize)
             .map((e, i) => (
                 new Split({
                     id: i,
                     floating: false,
-                    size: e.props.defaultSize * 100.0
+                    size: e.props.defaultsize * 100.0
                 })
             ));
 
@@ -50,8 +50,8 @@ const SplitContainer = (props) => {
             return props.children.map((e, i) => (
                 new Split({
                     id: i,
-                    size: e.props.defaultSize ? 
-                        e.props.defaultSize * 100.0 : 
+                    size: e.props.defaultsize ? 
+                        e.props.defaultsize * 100.0 : 
                         (100.0 - default_sum) / (count - 1),      
                     floating: false
                 })
@@ -305,9 +305,10 @@ const SplitContainer = (props) => {
 }
 
 SplitContainer.defaultProps = {
-    updateFlag: false,
-    defaultSize: null
+    updateFlag: false
 }
+
+// the children can have a defaultsize prop
 
 SplitContainer.propTypes = {
     children: PropTypes.any.isRequired,

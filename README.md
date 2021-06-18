@@ -6,6 +6,10 @@
 
 ![Image capture of maco-ui](/documentation/maco_capture.PNG)
 
+## About
+
+maco-ui is react component library that I have used for my project [camogen](https://camogen.glitch.me). In the future I'd like to clean this project up and make it more broadly useful for others, but at this moment it's very much a work in progress.
+
 ## Install
 
 ```bash

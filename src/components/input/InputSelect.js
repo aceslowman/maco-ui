@@ -37,7 +37,7 @@ const InputSelect = (props) => {
                     }}
                 >
                     {props.options.map((opt,i)=>(
-                        <option key={i} value={opt.value}>
+                        <option selected={opt.value === props.selectedOption} key={i} value={opt.value}>
                             {opt.label}
                         </option> 
                     ))}                   
