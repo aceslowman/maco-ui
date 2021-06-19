@@ -6,10 +6,11 @@ var mobxStateTree = require('mobx-state-tree');
 var PropTypes = _interopDefault(require('prop-types'));
 var classNames = _interopDefault(require('classnames'));
 var mobxReact = require('mobx-react');
+var ResizeObserver = _interopDefault(require('resize-observer-polyfill'));
 var tinykeys = _interopDefault(require('tinykeys'));
 require('mobx');
 
-var styles = {"wrapper":"_MacoWrapperComponent-module__wrapper__2QN4S"};
+var styles = {"wrapper":"_2QN4S"};
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -96,9 +97,9 @@ var Theme = mobxStateTree.types.model("Theme", _extends({}, themes.weyland)).act
 
 var ThemeContext = React.createContext(themes.weyland);
 
-var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","button":"_ToolbarComponent-module__button__11AN1","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
+var styles$1 = {"toolbar":"_3H9OD","activeButton":"_nBqTk","button":"_11AN1","itemDecoration":"_2AS8M","disableHover":"_3mDwQ"};
 
-var styles$2 = {"drawer":"_DropDownComponent-module__drawer__HZEnU","activeButton":"_DropDownComponent-module__activeButton__3TP9j","subDropDown":"_DropDownComponent-module__subDropDown__dUGHr","openUp":"_DropDownComponent-module__openUp__3ixui","openLeft":"_DropDownComponent-module__openLeft__1Nafv","disableHover":"_DropDownComponent-module__disableHover__2YRIx"};
+var styles$2 = {"drawer":"_HZEnU","activeButton":"_3TP9j","subDropDown":"_dUGHr","openUp":"_3ixui","openLeft":"_1Nafv","disableHover":"_2YRIx"};
 
 var style = {
   drawer: {
@@ -487,7 +488,7 @@ MacoWrapper.defaultProps = {
   titlebar: {}
 };
 
-var styles$3 = {"panel":"_PanelComponent-module__panel__2yteA","title_bar":"_PanelComponent-module__title_bar__2bArp","subtitle":"_PanelComponent-module__subtitle__Mh0_d","panel_content":"_PanelComponent-module__panel_content__2tcNH","fullscreen":"_PanelComponent-module__fullscreen__1HmTw","collapsed":"_PanelComponent-module__collapsed__qKCgk","horizontal":"_PanelComponent-module__horizontal__3ExTZ","vertical":"_PanelComponent-module__vertical__1MHdL","floating":"_PanelComponent-module__floating__3aE5b","resizeHandle":"_PanelComponent-module__resizeHandle__2cemD","resizeSE":"_PanelComponent-module__resizeSE__25SKY","resizeE":"_PanelComponent-module__resizeE__3lwm2","resizeS":"_PanelComponent-module__resizeS__p_Skn","moveHandle":"_PanelComponent-module__moveHandle__2RvpC","dragContainer":"_PanelComponent-module__dragContainer__1DDNn","indicators":"_PanelComponent-module__indicators__NiV_D","indicator":"_PanelComponent-module__indicator__1kQjp","tooltip":"_PanelComponent-module__tooltip__2H2yT","tooltip_symbol":"_PanelComponent-module__tooltip_symbol__1fFBX","tooltip_content":"_PanelComponent-module__tooltip_content__3wcYC"};
+var styles$3 = {"panel":"_2yteA","title_bar":"_2bArp","subtitle":"_Mh0_d","panel_content":"_2tcNH","fullscreen":"_1HmTw","collapsed":"_qKCgk","horizontal":"_3ExTZ","vertical":"_1MHdL","floating":"_3aE5b","resizeHandle":"_2cemD","resizeSE":"_25SKY","resizeE":"_3lwm2","resizeS":"_p_Skn","moveHandle":"_2RvpC","dragContainer":"_1DDNn","indicators":"_NiV_D","indicator":"_1kQjp","tooltip":"_2H2yT","tooltip_symbol":"_1fFBX","tooltip_content":"_3wcYC"};
 
 var _Panel$propTypes;
 var Tooltip = mobxReact.observer(function (props) {
@@ -894,7 +895,7 @@ var GenericPanel = mobxReact.observer(function (props) {
   }, props.children);
 });
 
-var styles$4 = {"text":"_TextComponent-module__text__1oiY2"};
+var styles$4 = {"text":"_1oiY2"};
 
 var Text = function Text(props) {
   return /*#__PURE__*/React__default.createElement("div", {
@@ -903,7 +904,7 @@ var Text = function Text(props) {
   }, props.children);
 };
 
-var styles$5 = {"wrapper":"_ControlGroupComponent-module__wrapper__1mSUC"};
+var styles$5 = {"wrapper":"_1mSUC"};
 
 var ControlGroup = function ControlGroup(props) {
   var context = React.useContext(ThemeContext);
@@ -938,7 +939,42 @@ var ControlGroup = function ControlGroup(props) {
   }))));
 };
 
-var styles$6 = {"wrapper":"_SplitContainer-module__wrapper__1CWdl","horizontal":"_SplitContainer-module__horizontal__Bk5vO","vertical":"_SplitContainer-module__vertical__2PDvd","drag_container":"_SplitContainer-module__drag_container__H0gkt","drag_handle_visible":"_SplitContainer-module__drag_handle_visible__1f5SD","drag_handle":"_SplitContainer-module__drag_handle__2--MZ","panel_container":"_SplitContainer-module__panel_container__HNP-M","split_container":"_SplitContainer-module__split_container__2lgi-","split_detached":"_SplitContainer-module__split_detached__3QIeQ","debug":"_SplitContainer-module__debug__1CADw","empty":"_SplitContainer-module__empty__2JebP","panel_content":"_SplitContainer-module__panel_content__2Gxvh"};
+var useObserver = function useObserver(callback, element, dependencies) {
+  if (dependencies === void 0) {
+    dependencies = [];
+  }
+
+  var observer = React.useRef(null);
+  React.useLayoutEffect(function () {
+    var observe = function observe() {
+      if (element && element.current && observer.current) {
+        observer.current.observe(element.current);
+      }
+    };
+
+    var current = element.current;
+
+    if (observer && observer.current && current) {
+      observer.current.unobserve(current);
+    }
+
+    var resizeObserverOrPolyfill = ResizeObserver;
+    observer.current = new resizeObserverOrPolyfill(callback);
+    observe();
+    return function () {
+      if (observer && observer.current && current) {
+        observer.current.unobserve(current);
+      }
+    };
+  }, [callback, element, observer].concat(dependencies));
+};
+
+useObserver.propTypes = {
+  element: PropTypes.object,
+  callback: PropTypes.func
+};
+
+var styles$6 = {"wrapper":"_1CWdl","horizontal":"_Bk5vO","vertical":"_2PDvd","drag_container":"_H0gkt","drag_handle_visible":"_1f5SD","drag_handle":"_2--MZ","panel_container":"_HNP-M","split_container":"_2lgi-","split_detached":"_3QIeQ","debug":"_1CADw","empty":"_2JebP","panel_content":"_2Gxvh"};
 
 var Split = function Split(_ref) {
   var _ref$id = _ref.id,
@@ -964,18 +1000,18 @@ var SplitContainer = function SplitContainer(props) {
       floating: false,
       size: 100
     })];
-    var default_splits = props.children.filter(function (e) {
-      return e.props.defaultSize;
+    var defaultSplits = props.children.filter(function (e) {
+      return e.props.defaultsize;
     }).map(function (e, i) {
       return new Split({
         id: i,
         floating: false,
-        size: e.props.defaultSize * 100.0
+        size: e.props.defaultsize * 100.0
       });
     });
 
-    if (default_splits.length) {
-      var default_sum = default_splits.filter(function (s) {
+    if (defaultSplits.length) {
+      var defaultSum = defaultSplits.filter(function (s) {
         return !s.floating;
       }).reduce(function (a, b) {
         return a + b.size;
@@ -983,7 +1019,7 @@ var SplitContainer = function SplitContainer(props) {
       return props.children.map(function (e, i) {
         return new Split({
           id: i,
-          size: e.props.defaultSize ? e.props.defaultSize * 100.0 : (100.0 - default_sum) / (count - 1),
+          size: e.props.defaultsize ? e.props.defaultsize * 100.0 : (100.0 - defaultSum) / (count - 1),
           floating: false
         });
       });
@@ -1006,26 +1042,39 @@ var SplitContainer = function SplitContainer(props) {
       isEmpty = _useState2[0],
       setEmpty = _useState2[1];
 
-  var wrapper_element = React.useRef(null);
+  var wrapperElement = React.useRef(null);
 
-  var handleResize = function handleResize(e, i) {
+  var _useState3 = React.useState(props.vertical || !props.horizontal),
+      isVertical = _useState3[0],
+      setIsVertical = _useState3[1];
+
+  var handleContainerResize = function handleContainerResize(e) {
+    if (props.auto) {
+      var bounds = wrapperElement.current.getBoundingClientRect();
+      setIsVertical(bounds.width < bounds.height);
+    }
+  };
+
+  useObserver(handleContainerResize, wrapperElement, [props.auto, isVertical]);
+
+  var handlePanelResize = function handlePanelResize(e, i) {
     function handleMove(e) {
       if (e.pageX) {
-        var p_bounds = wrapper_element.current.getBoundingClientRect();
+        var pBounds = wrapperElement.current.getBoundingClientRect();
         var s;
 
-        if (props.vertical) {
-          s = (e.pageY - p_bounds.y) / p_bounds.height;
+        if (isVertical) {
+          s = (e.pageY - pBounds.y) / pBounds.height;
         } else {
-          s = (e.pageX - p_bounds.x) / p_bounds.width;
+          s = (e.pageX - pBounds.x) / pBounds.width;
         }
 
-        var split_sum = i > 0 ? split.slice(0, i).filter(function (s) {
+        var splitSum = i > 0 ? split.slice(0, i).filter(function (s) {
           return !s.floating;
         }).reduce(function (a, b) {
           return a + b.size;
         }, 0) : 0;
-        split[i].size = s * 100 - split_sum;
+        split[i].size = s * 100 - splitSum;
         if (split[i].size > 100) split[i].size = 100;
         if (split[i].size < 0) split[i].size = 0;
         setSplit([].concat(split));
@@ -1036,40 +1085,40 @@ var SplitContainer = function SplitContainer(props) {
       if (e.touches && e.touches[0]) e = e.touches[0];
 
       if (e.pageX) {
-        var p_bounds = wrapper_element.current.getBoundingClientRect();
+        var pBounds = wrapperElement.current.getBoundingClientRect();
         var s;
 
-        if (props.vertical) {
-          s = (e.pageY - p_bounds.y) / p_bounds.height;
+        if (isVertical) {
+          s = (e.pageY - pBounds.y) / pBounds.height;
         } else {
-          s = (e.pageX - p_bounds.x) / p_bounds.width;
+          s = (e.pageX - pBounds.x) / pBounds.width;
         }
 
-        var split_sum = i > 0 ? split.slice(0, i).filter(function (s) {
+        var splitSum = i > 0 ? split.slice(0, i).filter(function (s) {
           return !s.floating;
         }).reduce(function (a, b) {
           return a + b.size;
         }, 0) : 0;
-        split[i].size = s * 100 - split_sum;
+        split[i].size = s * 100 - splitSum;
         if (split[i].size > 100) split[i].size = 100;
         if (split[i].size < 0) split[i].size = 0;
         setSplit([].concat(split));
       }
 
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleMoveEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleMoveEnd);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleMoveEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleMoveEnd);
     }
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleMoveEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleMoveEnd);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleMoveEnd);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleMoveEnd);
   };
 
-  var handleDetach = function handleDetach(i, detach_bool) {
+  var handleDetach = function handleDetach(i, detachBool) {
     if (i === split.length) return;
-    split[i].floating = detach_bool;
+    split[i].floating = detachBool;
     setSplit([].concat(split));
   };
 
@@ -1089,35 +1138,35 @@ var SplitContainer = function SplitContainer(props) {
       if (props.onEmpty) props.onEmpty(false);
     }
   }, [split]);
-  var wrapper_class = classNames(styles$6.wrapper, (_classNames = {}, _classNames[styles$6.vertical] = props.vertical, _classNames[styles$6.horizontal] = !props.vertical, _classNames[styles$6.empty] = isEmpty, _classNames));
+  var wrapperClass = classNames(styles$6.wrapper, (_classNames = {}, _classNames[styles$6.vertical] = isVertical, _classNames[styles$6.horizontal] = !isVertical, _classNames[styles$6.empty] = isEmpty, _classNames));
   return /*#__PURE__*/React__default.createElement("div", {
-    className: wrapper_class,
+    className: wrapperClass,
+    ref: wrapperElement,
     style: {
       backgroundColor: context.tertiary_color
-    },
-    ref: wrapper_element
+    }
   }, props.children && React__default.Children.map(props.children, function (child, i) {
     var _classNames2, _classNames3, _classNames4, _classNames5, _classNames6;
 
     var isSplit = child.type.name === 'SplitContainer';
     if (props.children.length === 1) return /*#__PURE__*/React__default.createElement("div", {
-      style: props.vertical ? {
+      style: isVertical ? {
         height: '100%'
       } : {
         width: '100%'
       },
       className: classNames((_classNames2 = {}, _classNames2[styles$6.split_container] = isSplit, _classNames2[styles$6.panel_container] = !isSplit, _classNames2))
     }, child);
-    var has_handle = i < props.children.length - 1;
+    var hasHandle = i < props.children.length - 1;
     var w;
 
     if (i < props.children.length - 1) {
       w = split[i] ? split[i].size : 0;
       w = split[i].floating ? 0 : w;
-      if (split[i].floating) has_handle = false;
+      if (split[i].floating) hasHandle = false;
     } else {
       if (split[i] && split[i].floating) {
-        has_handle = false;
+        hasHandle = false;
         w = 0;
       } else {
         w = 100 - split.slice(0, -1).filter(function (s) {
@@ -1140,7 +1189,7 @@ var SplitContainer = function SplitContainer(props) {
       return !s.floating;
     }).length === 1) {
       w = 100;
-      has_handle = false;
+      hasHandle = false;
     }
 
     if (child.props.detachable) {
@@ -1160,27 +1209,29 @@ var SplitContainer = function SplitContainer(props) {
     }
 
     return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("div", {
-      style: props.vertical ? {
+      style: isVertical ? {
         height: w + '%'
       } : {
         width: w + '%'
       },
       className: classNames(styles$6.panel_content, (_classNames3 = {}, _classNames3[styles$6.split_container] = isSplit, _classNames3[styles$6.panel_container] = !isSplit, _classNames3[styles$6.split_floating] = split[i] ? split[i].floating : false, _classNames3))
-    }, child), has_handle && /*#__PURE__*/React__default.createElement("div", {
-      className: classNames(styles$6.drag_container, (_classNames4 = {}, _classNames4[styles$6.vertical] = props.vertical, _classNames4[styles$6.horizontal] = !props.vertical, _classNames4))
+    }, child), hasHandle && /*#__PURE__*/React__default.createElement("div", {
+      className: classNames(styles$6.drag_container, (_classNames4 = {}, _classNames4[styles$6.vertical] = isVertical, _classNames4[styles$6.horizontal] = !isVertical, _classNames4))
     }, /*#__PURE__*/React__default.createElement("div", {
-      className: classNames(styles$6.drag_handle_visible, (_classNames5 = {}, _classNames5[styles$6.vertical] = props.vertical, _classNames5[styles$6.horizontal] = !props.vertical, _classNames5)),
+      className: classNames(styles$6.drag_handle_visible, (_classNames5 = {}, _classNames5[styles$6.vertical] = isVertical, _classNames5[styles$6.horizontal] = !isVertical, _classNames5)),
       style: {
-        backgroundColor: context.accent_color,
-        borderColor: context.primary_color
-      }
-    }, /*#__PURE__*/React__default.createElement("div", {
-      className: classNames(styles$6.drag_handle, (_classNames6 = {}, _classNames6[styles$6.vertical] = props.vertical, _classNames6[styles$6.horizontal] = !props.vertical, _classNames6)),
+        borderColor: context.accent_color
+      },
       onTouchStart: function onTouchStart(e) {
-        return handleResize(e, i);
+        return handlePanelResize(e, i);
       },
       onMouseDown: function onMouseDown(e) {
-        return handleResize(e, i);
+        return handlePanelResize(e, i);
+      }
+    }, /*#__PURE__*/React__default.createElement("div", {
+      className: classNames(styles$6.drag_handle, (_classNames6 = {}, _classNames6[styles$6.vertical] = isVertical, _classNames6[styles$6.horizontal] = !isVertical, _classNames6)),
+      style: {
+        borderColor: context.outline_color
       }
     }))));
   }), props.children.length === 0 && /*#__PURE__*/React__default.createElement("p", {
@@ -1192,18 +1243,18 @@ var SplitContainer = function SplitContainer(props) {
 };
 
 SplitContainer.defaultProps = {
-  updateFlag: false,
-  defaultSize: null
+  updateFlag: false
 };
 SplitContainer.propTypes = {
   children: PropTypes.any.isRequired,
   horizontal: PropTypes.bool,
   vertical: PropTypes.bool,
+  auto: PropTypes.bool,
   split: PropTypes.array,
   updateFlag: PropTypes.bool
 };
 
-var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
+var styles$7 = {"wrapper":"_wIgZx","panel_content":"_jO4g0","vertical":"_V6QbL","horizontal":"_2lf1N","drag_container":"_3-f3R","drag_handle":"_3QuuK","panel_container":"_2NjEi","layout_container":"_3nmhc","float_container":"_2l4sw","debug":"_2rD68","empty":"_2YyYx"};
 
 var LayoutContainer = mobxReact.observer(function (props) {
   var _classNames;
@@ -1247,15 +1298,15 @@ var LayoutContainer = mobxReact.observer(function (props) {
         layout.adjust(pos);
       }
 
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleMoveEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleMoveEnd);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleMoveEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleMoveEnd);
     }
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleMoveEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleMoveEnd);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleMoveEnd);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleMoveEnd);
   };
 
   var handleContextMenu = function handleContextMenu(e, layout) {
@@ -1363,7 +1414,7 @@ LayoutContainer.defaultProps = {
 };
 LayoutContainer.propTypes = {};
 
-var styles$8 = {"wrapper":"_PagesContainer-module__wrapper__3YMIz","pagecontent":"_PagesContainer-module__pagecontent__2QZA5","pagenav":"_PagesContainer-module__pagenav__1nlPP"};
+var styles$8 = {"wrapper":"_3YMIz","pagecontent":"_2QZA5","pagenav":"_1nlPP"};
 
 var Pages = function Pages(props) {
   var _useState = React.useState(0),
@@ -1400,7 +1451,7 @@ var Pages = function Pages(props) {
   }, '>'), /*#__PURE__*/React__default.createElement("span", null, currentPage + 1 + " of " + props.children.length)));
 };
 
-var styles$9 = {"wrapper":"_InputBool-module__wrapper__38eCI","wrapper_inner":"_InputBool-module__wrapper_inner__2obra"};
+var styles$9 = {"wrapper":"_38eCI","wrapper_inner":"_2obra"};
 
 var InputBool = mobxReact.observer(function (props) {
   var context = React.useContext(ThemeContext);
@@ -1432,7 +1483,7 @@ var InputBool = mobxReact.observer(function (props) {
   })));
 });
 
-var styles$a = {"wrapper":"_InputFloat-module__wrapper__2vWWU","wrapper_inner":"_InputFloat-module__wrapper_inner__1KItv","dragOverlay":"_InputFloat-module__dragOverlay__2-zBM"};
+var styles$a = {"wrapper":"_2vWWU","wrapper_inner":"_1KItv","dragOverlay":"_2-zBM"};
 
 var position = [0, 0];
 var base_value = 0;
@@ -1545,7 +1596,7 @@ InputFloat.propTypes = {
   inputStyle: PropTypes.object
 };
 
-var styles$b = {"wrapper":"_InputSelect-module__wrapper__1B9B8","wrapper_inner":"_InputSelect-module__wrapper_inner__2i8h4"};
+var styles$b = {"wrapper":"_1B9B8","wrapper_inner":"_2i8h4"};
 
 var InputSelect = function InputSelect(props) {
   var context = React.useContext(ThemeContext);
@@ -1567,6 +1618,7 @@ var InputSelect = function InputSelect(props) {
   }, props.label, ":"), /*#__PURE__*/React__default.createElement("div", {
     className: styles$b.wrapper_inner
   }, /*#__PURE__*/React__default.createElement("select", {
+    defaultValue: props.selectedOption,
     onChange: handleChange,
     onContextMenu: props.onContextMenu,
     style: {
@@ -1581,7 +1633,7 @@ var InputSelect = function InputSelect(props) {
   }))));
 };
 
-var styles$c = {"wrapper":"_InputSlider-module__wrapper__3sg2E","slider_track":"_InputSlider-module__slider_track__1S-tO","handle":"_InputSlider-module__handle__BhBAn","vertical":"_InputSlider-module__vertical__2cOVj","horizontal":"_InputSlider-module__horizontal__MEKW8","sleeve":"_InputSlider-module__sleeve__3EORW"};
+var styles$c = {"wrapper":"_3sg2E","slider_track":"_1S-tO","handle":"_BhBAn","vertical":"_2cOVj","horizontal":"_MEKW8","sleeve":"_3EORW"};
 
 var slider_bounds = null;
 
@@ -1683,7 +1735,7 @@ InputSlider.propTypes = {
   style: PropTypes.object
 };
 
-var styles$d = {"wrapper":"_InputColor-module__wrapper__3e2_F","wrapper_inner":"_InputColor-module__wrapper_inner__2csGd"};
+var styles$d = {"wrapper":"_3e2_F","wrapper_inner":"_2csGd"};
 
 var InputColor = function InputColor(props) {
   var context = React.useContext(ThemeContext);

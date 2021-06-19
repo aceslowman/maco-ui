@@ -46,6 +46,19 @@ const panels = {
       dimensions: [100, 100],
       position: [100, 150]
     },
+
+    'split': {
+      id: 'split',
+      canRemove: true,
+      component_type: 'SPLIT',
+      title: 'Split',
+      floating: false,
+      canFloat: true,
+      defaultWidth: 100,
+      defaultHeight: 200,
+      dimensions: [100, 100],
+      position: [100, 150]
+    },
 };
 
 const layouts = {
@@ -97,6 +110,20 @@ const layouts = {
     ],
     panels: panels
   },
+  'split_containers': {
+    id: 'split_containers',
+    title: 'Split Containers',
+    direction: 'HORIZONTAL',
+    size: 1,
+    children: [
+      {
+        id: "split",
+        panel: "split",
+        size: 1,
+      }
+    ],
+    panels: {'split':panels.split}
+  },
 };
 
 const mainPanel = {
@@ -113,7 +140,7 @@ const mainPanel = {
   defaultHeight: 250,
   dimensions: [400, 400],
   position: [100, 100],
-  layout: layouts['main']
+  layout: layouts['split_containers'] // change default layout
 };
 
 const root = RootStore.create({

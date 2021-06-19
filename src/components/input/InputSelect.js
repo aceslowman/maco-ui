@@ -29,6 +29,7 @@ const InputSelect = (props) => {
                 className={styles.wrapper_inner}
             >
                 <select 
+                    defaultValue={props.selectedOption} 
                     onChange={handleChange} 
                     onContextMenu={props.onContextMenu}
                     style={{
@@ -37,7 +38,7 @@ const InputSelect = (props) => {
                     }}
                 >
                     {props.options.map((opt,i)=>(
-                        <option selected={opt.value === props.selectedOption} key={i} value={opt.value}>
+                        <option key={i} value={opt.value}>
                             {opt.label}
                         </option> 
                     ))}                   

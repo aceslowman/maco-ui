@@ -16,6 +16,7 @@ import 'maco-ui/dist/index.css';
 import ColorSchemePanel from './panels/ColorSchemePanel';
 import InputsPanel from './panels/InputsPanel';
 import AboutPanel from './panels/AboutPanel';
+import SplitPanel from './panels/SplitPanel';
 
 const App = observer((props) => {
 
@@ -92,6 +93,13 @@ const App = observer((props) => {
         case "INPUTS":
           return (
             <InputsPanel 
+              key={panel.id}
+              panel={panel} 
+            />
+          );
+        case "SPLIT":
+          return (
+            <SplitPanel 
               key={panel.id}
               panel={panel} 
             />
