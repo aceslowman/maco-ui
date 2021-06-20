@@ -485,9 +485,8 @@ MacoWrapper.defaultProps = {
   titlebar: {}
 };
 
-var styles$3 = {"panel":"_2yteA","title_bar":"_2bArp","subtitle":"_Mh0_d","panel_content":"_2tcNH","fullscreen":"_1HmTw","collapsed":"_qKCgk","horizontal":"_3ExTZ","vertical":"_1MHdL","floating":"_3aE5b","resizeHandle":"_2cemD","resizeSE":"_25SKY","resizeE":"_3lwm2","resizeS":"_p_Skn","moveHandle":"_2RvpC","dragContainer":"_1DDNn","indicators":"_NiV_D","indicator":"_1kQjp","tooltip":"_2H2yT","tooltip_symbol":"_1fFBX","tooltip_content":"_3wcYC"};
+var styles$3 = {"panel":"_2yteA","title_bar":"_2bArp","subtitle":"_Mh0_d","panel_content":"_2tcNH","fullscreen":"_1HmTw","collapsed":"_qKCgk","horizontal":"_3ExTZ","vertical":"_1MHdL","floating":"_3aE5b","resizeHandle":"_2cemD","resizeSE":"_25SKY","resizeE":"_3lwm2","resizeS":"_p_Skn","resizeN":"_UmDS3","resizeNW":"_3RvlH","resizeNE":"_37vdB","resizeSW":"_1FPl3","resizeW":"_3ey4p","moveHandle":"_2RvpC","dragContainer":"_1DDNn","indicators":"_NiV_D","indicator":"_1kQjp","tooltip":"_2H2yT","tooltip_symbol":"_1fFBX","tooltip_content":"_3wcYC"};
 
-var _Panel$propTypes;
 var Tooltip = observer(function (props) {
   var context = useContext(ThemeContext);
 
@@ -530,7 +529,7 @@ var Panel = observer(function (props) {
   var _classNames, _classNames2;
 
   var context = useContext(ThemeContext);
-  var wrapper_element = useRef(null);
+  var wrapperElement = useRef(null);
 
   var _useState3 = useState(props.expanded),
       expanded = _useState3[0],
@@ -544,67 +543,177 @@ var Panel = observer(function (props) {
       hover = _useState5[0],
       setHover = _useState5[1];
 
-  var handleResize = function handleResize(e, axis) {
-    if (axis === void 0) {
-      axis = 'xy';
+  var handleResize = function handleResize(e, direction) {
+    if (direction === void 0) {
+      direction = 'xy';
     }
 
-    function handleMove(e) {
+    var dragging = true;
+    var pBounds = wrapperElement.current.getBoundingClientRect();
+    var initialDimensions = [pBounds.width, pBounds.height];
+    var initialPosition = [pBounds.x, pBounds.y];
+
+    var handleMove = function handleMove(e) {
       if (e.touches) e = e.touches[0];
 
-      if (e.pageY) {
-        var p_bounds = wrapper_element.current.getBoundingClientRect();
-        var w = e.pageX - p_bounds.x + 10;
-        var h = e.pageY - p_bounds.y + 10;
+      if (e.pageY && dragging) {
+        var _pBounds = wrapperElement.current.getBoundingClientRect();
 
-        switch (axis) {
-          case 'xy':
+        var w, h;
+        var x, y;
+
+        switch (direction) {
+          case 'se':
+            w = e.pageX - _pBounds.x;
+            h = e.pageY - _pBounds.y;
             props.onDimensionsChange([w, h]);
             break;
 
-          case 'x':
-            props.onDimensionsChange([w, props.dimensions[1]]);
+          case 'e':
+            w = e.pageX - _pBounds.x;
+            h = props.dimensions[1];
+            props.onDimensionsChange([w, h]);
             break;
 
-          case 'y':
-            props.onDimensionsChange([props.dimensions[0], h]);
+          case 's':
+            w = props.dimensions[0];
+            h = e.pageY - _pBounds.y;
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'sw':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = e.pageY - _pBounds.y;
+            x = e.pageX;
+            y = _pBounds.y;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'w':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = props.dimensions[1];
+            x = e.pageX;
+            y = _pBounds.y;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'n':
+            w = props.dimensions[0];
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = _pBounds.x;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'nw':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = e.pageX;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'ne':
+            w = e.pageX - _pBounds.x;
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = _pBounds.x;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
             break;
         }
       }
-    }
+    };
 
-    function handleMoveEnd(e) {
+    var handleMoveEnd = function handleMoveEnd(e) {
+      dragging = false;
       if (e.touches && e.touches[0]) e = e.touches[0];
 
       if (e.pageY) {
-        var p_bounds = wrapper_element.current.getBoundingClientRect();
-        var w = e.pageX - p_bounds.x + 10;
-        var h = e.pageY - p_bounds.y + 10;
+        var _pBounds2 = wrapperElement.current.getBoundingClientRect();
 
-        switch (axis) {
-          case 'xy':
+        var w, h;
+        var x, y;
+
+        switch (direction) {
+          case 'se':
+            w = e.pageX - _pBounds2.x;
+            h = e.pageY - _pBounds2.y;
             props.onDimensionsChange([w, h]);
             break;
 
-          case 'x':
-            props.onDimensionsChange([w, props.dimensions[1]]);
+          case 'e':
+            w = e.pageX - _pBounds2.x;
+            h = props.dimensions[1];
+            props.onDimensionsChange([w, h]);
             break;
 
-          case 'y':
-            props.onDimensionsChange([props.dimensions[0], h]);
+          case 's':
+            w = props.dimensions[0];
+            h = e.pageY - _pBounds2.y;
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'sw':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = e.pageY - _pBounds2.y;
+            x = e.pageX;
+            y = _pBounds2.y;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'w':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = props.dimensions[1];
+            x = e.pageX;
+            y = _pBounds2.y;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'n':
+            w = props.dimensions[0];
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = _pBounds2.x;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'nw':
+            w = initialDimensions[0] + (initialPosition[0] - e.pageX);
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = e.pageX;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
+            break;
+
+          case 'ne':
+            w = e.pageX - _pBounds2.x;
+            h = initialDimensions[1] + (initialPosition[1] - e.pageY);
+            x = _pBounds2.x;
+            y = e.pageY;
+            props.onPositionChange([x, y]);
+            props.onDimensionsChange([w, h]);
             break;
         }
       }
 
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleMoveEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleMoveEnd);
-    }
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleMoveEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleMoveEnd);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleMoveEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleMoveEnd);
+    };
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleMoveEnd);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleMoveEnd);
   };
 
   var handleMoveStart = function handleMoveStart(e) {
@@ -627,30 +736,30 @@ var Panel = observer(function (props) {
         props.onPositionChange([x >= 0 ? x : 0, y >= 0 ? y : 0]);
       }
 
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleMoveEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleMoveEnd);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleMoveEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleMoveEnd);
     }
 
     if (e.touches) e = e.touches[0];
-    var p_bounds = wrapper_element.current.getBoundingClientRect();
+    var pBounds = wrapperElement.current.getBoundingClientRect();
     var offset = {
-      x: p_bounds.left,
-      y: p_bounds.top
+      x: pBounds.left,
+      y: pBounds.top
     };
     var dragOff = [e.pageX - offset.x, e.pageY - offset.y];
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("mouseup", handleMoveEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleMoveEnd);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleMoveEnd);
+    document.addEventListener('touchmove', handleMove);
+    document.addEventListener('touchend', handleMoveEnd);
   };
 
   var handleCenter = function handleCenter() {
     if (!props.onPositionChange) return;
-    var p_bounds = wrapper_element.current.getBoundingClientRect();
-    var x = window.innerWidth / 2 - p_bounds.width / 2;
-    var y = window.innerHeight / 2 - p_bounds.height / 2;
+    var pBounds = wrapperElement.current.getBoundingClientRect();
+    var x = window.innerWidth / 2 - pBounds.width / 2;
+    var y = window.innerHeight / 2 - pBounds.height / 2;
     props.onPositionChange([x >= 0 ? x : 0, y >= 0 ? y : 0]);
   };
 
@@ -662,8 +771,8 @@ var Panel = observer(function (props) {
 
   var handleFloat = function handleFloat() {
     if (props.floating === null) {
-      var p_bounds = wrapper_element.current.getBoundingClientRect();
-      if (props.onDimensionsChange) props.onDimensionsChange([p_bounds.width, p_bounds.height]);
+      var pBounds = wrapperElement.current.getBoundingClientRect();
+      if (props.onDimensionsChange) props.onDimensionsChange([pBounds.width, pBounds.height]);
     }
 
     if (props.onFloat) props.onFloat(!props.floating);
@@ -676,23 +785,23 @@ var Panel = observer(function (props) {
   };
 
   var handleBlur = function handleBlur() {
-    wrapper_element.current.blur();
+    wrapperElement.current.blur();
     setHover(false);
     setFocused(false);
     if (props.onBlur) props.onBlur(false);
   };
 
-  var main_styling = {};
+  var mainStyling = {};
 
   if (props.floating && !props.fullscreen) {
-    main_styling = {
+    mainStyling = {
       width: props.dimensions[0],
       height: expanded ? props.dimensions[1] : 'min-content',
       left: props.position[0],
       top: props.position[1]
     };
   } else if (props.fullscreen) {
-    main_styling = {
+    mainStyling = {
       width: '100%',
       height: '100%',
       left: 0,
@@ -718,7 +827,7 @@ var Panel = observer(function (props) {
     setExpanded(props.expanded);
   }, [props.expanded]);
   return /*#__PURE__*/React.createElement("div", {
-    ref: wrapper_element,
+    ref: wrapperElement,
     className: classNames(styles$3.panel, (_classNames = {}, _classNames[styles$3.fullscreen] = props.fullscreen, _classNames[styles$3.floating] = props.floating, _classNames[styles$3.collapsed] = !expanded, _classNames)),
     style: _extends({
       backgroundColor: !props.fullscreen ? context.primary_color : 'transparent',
@@ -727,7 +836,7 @@ var Panel = observer(function (props) {
       height: props.collapsible ? 'auto' : '100%',
       margin: props.gutters ? props.gutterSize : 0,
       zIndex: hover ? 5 : 2
-    }, main_styling, props.style),
+    }, mainStyling, props.style),
     onFocus: handleFocus,
     onBlur: handleBlur,
     onContextMenu: props.onContextMenu,
@@ -751,7 +860,7 @@ var Panel = observer(function (props) {
     title: "close",
     onClick: props.onRemove
   }, "x"), props.canFloat && /*#__PURE__*/React.createElement("button", {
-    title: props.floating ? "snap" : "float",
+    title: props.floating ? 'snap' : 'float',
     onClick: handleFloat,
     style: {
       fontSize: '0.9em'
@@ -789,24 +898,28 @@ var Panel = observer(function (props) {
   })), expanded && props.toolbar, expanded && /*#__PURE__*/React.createElement("div", {
     style: {
       borderColor: context.text_color,
-      flexBasis: props.fullscreen ? "0px" : "auto"
+      flexBasis: props.fullscreen ? '0px' : 'auto'
     },
     className: classNames(styles$3.panel_content, (_classNames2 = {}, _classNames2[styles$3.horizontal] = props.horizontal, _classNames2[styles$3.vertical] = props.vertical, _classNames2)),
     ref: props.onRef
   }, props.children), expanded && props.footbar, props.floating && !props.fullscreen && expanded && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: styles$3.resizeHandle + " " + styles$3.resizeSE,
-    onTouchStart: handleResize,
-    onMouseDown: handleResize,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'se');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'se');
+    },
     style: {
       borderColor: context.text_color
     }
   }), /*#__PURE__*/React.createElement("div", {
     className: styles$3.resizeHandle + " " + styles$3.resizeE,
     onTouchStart: function onTouchStart(e) {
-      return handleResize(e, 'x');
+      return handleResize(e, 'e');
     },
     onMouseDown: function onMouseDown(e) {
-      return handleResize(e, 'x');
+      return handleResize(e, 'e');
     },
     style: {
       borderColor: context.text_color
@@ -814,10 +927,65 @@ var Panel = observer(function (props) {
   }), /*#__PURE__*/React.createElement("div", {
     className: styles$3.resizeHandle + " " + styles$3.resizeS,
     onTouchStart: function onTouchStart(e) {
-      return handleResize(e, 'y');
+      return handleResize(e, 's');
     },
     onMouseDown: function onMouseDown(e) {
-      return handleResize(e, 'y');
+      return handleResize(e, 's');
+    },
+    style: {
+      borderColor: context.text_color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$3.resizeHandle + " " + styles$3.resizeSW,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'sw');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'sw');
+    },
+    style: {
+      borderColor: context.text_color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$3.resizeHandle + " " + styles$3.resizeW,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'w');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'w');
+    },
+    style: {
+      borderColor: context.text_color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$3.resizeHandle + " " + styles$3.resizeN,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'n');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'n');
+    },
+    style: {
+      borderColor: context.text_color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$3.resizeHandle + " " + styles$3.resizeNE,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'ne');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'ne');
+    },
+    style: {
+      borderColor: context.text_color
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$3.resizeHandle + " " + styles$3.resizeNW,
+    onTouchStart: function onTouchStart(e) {
+      return handleResize(e, 'nw');
+    },
+    onMouseDown: function onMouseDown(e) {
+      return handleResize(e, 'nw');
     },
     style: {
       borderColor: context.text_color
@@ -836,7 +1004,7 @@ Panel.defaultProps = {
   showTitle: true,
   onContextMenu: function onContextMenu() {}
 };
-Panel.propTypes = (_Panel$propTypes = {
+Panel.propTypes = {
   onRemove: PropTypes.func,
   onFocus: PropTypes.func,
   toolbar: PropTypes.object,
@@ -854,7 +1022,7 @@ Panel.propTypes = (_Panel$propTypes = {
   gutters: PropTypes.bool,
   gutterSize: PropTypes.number,
   border: PropTypes.bool
-}, _Panel$propTypes["onFocus"] = PropTypes.func, _Panel$propTypes);
+};
 var GenericPanel = observer(function (props) {
   var _props$title, _props$subtitle, _props$collapsible, _props$showTitle, _props$onRemove, _props$canRemove;
 
