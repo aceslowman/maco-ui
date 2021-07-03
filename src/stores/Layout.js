@@ -1,127 +1,136 @@
-import {
-  types,
-  getParent,
-  getRoot
-} from "mobx-state-tree";
-import Panel from "./Panel";
+import { types, getParent, getRoot } from 'mobx-state-tree'
+import { nanoid } from 'nanoid'
+import Panel from './Panel'
 
 const Layout = types
-  .model("Layout", {
+  .model('Layout', {
     id: types.identifier,
-    title: "Layout",
+    title: 'Layout',
     size: 0,
-    panel: types.maybe(types.safeReference(Panel)),
+    panel: types.maybe(Panel),
     children: types.array(types.late(() => Layout)),
-    panels: types.maybe(types.map(Panel)),
     direction: types.optional(
-      types.enumeration(["VERTICAL", "HORIZONTAL"]),
-      "HORIZONTAL"
+      types.enumeration(['VERTICAL', 'HORIZONTAL']),
+      'HORIZONTAL'
     )
   })
-  .views(self => ({
+  .views((self) => ({
     get isEmpty() {
-      let result =
+      const result =
         self.children.length &&
         self.children.filter(
-          s => (!s.panel && !s.isEmpty) || (s.panel && !s.panel.floating)
-        ).length === 0;
-      return result;
+          (s) => (!s.panel && !s.isEmpty) || (s.panel && !s.panel.floating)
+        ).length === 0
+      return result
     }
   }))
-  .volatile(self => ({
+  .volatile((self) => ({
     siblings: null,
     rootStore: null
   }))
-  .actions(self => ({
-
+  .actions((self) => ({
     afterAttach: () => {
-      self.siblings = getParent(self);
-      self.rootStore = getRoot(self);
+      self.siblings = getParent(self)
+      self.rootStore = getRoot(self)
     },
 
-    adjust: (size) => {
-      let self_index = self.siblings.indexOf(self);
+    adjust: (position) => {
+      const selfIndex = self.siblings.indexOf(self)
 
-      let adjusted_size = size;
+      /* 
+        the sum is all panels (except for those floating) 
+        *leading up to* the one we are resizing
+      */
+      let sum = 0
+      for (let i = 0; i < selfIndex; i++) {
+        sum += self.siblings[i].size
+      }
 
-      let sum =
-        self_index > 0 ?
-        self.siblings
-        .slice(0, self_index)
-        .filter(s => !s.floating)
-        .reduce((a, b) => a + b.size, 0) :
-        0;
+      const previousSize = self.size
+      const adjustedSize = position - sum
 
-      adjusted_size = size - sum;
+      self.setSize(adjustedSize)
 
-      if (adjusted_size > 100) adjusted_size = 100;
-      if (adjusted_size < 0) adjusted_size = 0;
-
-      self.setSize(adjusted_size);
+      const nextSibling = self.siblings[selfIndex + 1]
+      nextSibling.setSize(nextSibling.size + (previousSize - adjustedSize))
     },
 
     distributeChildren: () => {
       self.children.forEach((e, i) => {
-        console.log(i, (i + 1) / self.children.length);
-        e.setSize(1 / self.children.length);
-      });
+        console.log(i, (i + 1) / self.children.length)
+        e.setSize(1 / self.children.length)
+      })
     },
 
     setSize: (size) => {
-      self.size = size;
+      self.size = size
     },
 
-    addPanel: (panel) => {
-      // if panel is a string, look it up from list of defaults
-      if (typeof panel === "string" && self.rootStore.panelVariants[panel]) {
-        panel = self.rootStore.panelVariants[panel];
+    setPanel: (panelId) => {
+      /*  
+        TODO 
+          I think that this can be simplified in some way, 
+          mainly I think there too many serialized fields
+          a new panel is really just a different 'component_type'
+          field
+
+          until I figure out a better way to do this I am going to
+          make sure that it retains floating, dimensions, and position
+      */
+      const newpanel = {
+        ...self.rootStore.ui.panelVariants[panelId],
+        floating: self.panel.floating,
+        dimensions: [...self.panel.dimensions],
+        position: [...self.panel.position]
       }
 
-      let layout = Layout.create({
-        id: panel.id,
-        panel: panel.id,
-        size: 1 / self.children.length
-      });
+      self.panel = newpanel
+      self.title = self.rootStore.ui.panelVariants[panelId].title
+    },
 
-      self.panels.put(panel);
-      self.children.push(layout);
+    addPanel: (panel, after) => {
+      /* 
+        look for the 'after' node and insert 'panel'
+        after it 
+       */
+      const insertAfter = self.children.indexOf(after)
 
-      //       console.log("self", self);
+      self.children.splice(
+        insertAfter + 1,
+        0,
+        Layout.create({
+          id: nanoid(),
+          panel: panel,
+          size: 1 / self.children.length
+        })
+      )
 
-      //       self.distributeChildren();
+      self.distributeChildren()
     },
 
     removePanel: (panel) => {
-      if (self.panels) self.panels.delete(panel);
       if (self.children) {
-        self.children = self.children.filter(e => e.panel !== panel);
+        self.children = self.children.filter((child) => child !== panel)
 
-        self.children.forEach(e => {
-          e.removePanel(panel);
-        });
-
-        // console.log("SELF", getSnapshot(self));
-
-        // TODO: if all panels are gone, remove this layout
-        // if(!self.children.length) {
-        //     console.log(getParent(self,1))
-        //     let parent = getParent(self, 1);
-        //     parent.children.filter(e => e !== self)
-        // }
+        // if all panels are gone, remove this layout
+        if (self.children.length === 0) {
+          if (getParent(self, 2).removePanel)
+            getParent(self, 2).removePanel(self)
+        }
       }
+
+      // TODO factor in the size of the removed panel
+      // into the panel to its left and right
+
+      self.distributeChildren()
     },
 
     clear: () => {
       if (self.panels && self.children) {
-        self.panels.clear();
-        self.children = [];
+        self.panels.clear()
+        self.children = []
       }
-    },
-
-    // removeLayout: (layout) => {
-    //     if(self.children) self.children.filter(e => e !== layout);
-    // }
-
+    }
   }))
 
-export default Layout;
+export default Layout

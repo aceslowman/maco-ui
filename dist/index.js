@@ -2,15 +2,13 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var React = require('react');
 var React__default = _interopDefault(React);
-var mobxStateTree = require('mobx-state-tree');
-var PropTypes = _interopDefault(require('prop-types'));
-var classNames = _interopDefault(require('classnames'));
 var mobxReact = require('mobx-react');
+var classNames = _interopDefault(require('classnames'));
+var PropTypes = _interopDefault(require('prop-types'));
 var ResizeObserver = _interopDefault(require('resize-observer-polyfill'));
+var mobxStateTree = require('mobx-state-tree');
 var tinykeys = _interopDefault(require('tinykeys'));
-require('mobx');
-
-var styles = {"wrapper":"_2QN4S"};
+var nanoid = require('nanoid');
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -30,86 +28,23 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-var themes = {
-  'weyland': {
-    primary_color: '#ffffff',
-    secondary_color: '#C2C2C2',
-    tertiary_color: '#e0e0e0',
-    text_color: '#000000',
-    outline_color: '#aaaaaa',
-    accent_color: '#3fa3a3'
-  },
-  'yutani': {
-    primary_color: '#000000',
-    secondary_color: '#202020',
-    tertiary_color: '#303030',
-    text_color: '#ffffff',
-    outline_color: '#474747',
-    accent_color: '#3fa3a3'
-  },
-  'powershell': {
-    primary_color: '#012456',
-    secondary_color: '#304E78',
-    tertiary_color: '#233767',
-    text_color: '#ffffff',
-    outline_color: '#51578B',
-    accent_color: '#ffff00'
-  },
-  'sarah': {
-    primary_color: '#0D5439',
-    secondary_color: '#9D6C71',
-    tertiary_color: '#5b6b5c',
-    text_color: '#C9A6A6',
-    outline_color: '#aaaaaa',
-    accent_color: '#D3945A'
-  }
-};
-var Theme = mobxStateTree.types.model("Theme", _extends({}, themes.weyland)).actions(function (self) {
-  return {
-    setTheme: function setTheme(theme) {
-      self.primary_color = theme.primary_color;
-      self.secondary_color = theme.secondary_color;
-      self.tertiary_color = theme.tertiary_color;
-      self.text_color = theme.text_color;
-      self.outline_color = theme.outline_color;
-      self.accent_color = theme.accent_color;
-    },
-    setPrimaryColor: function setPrimaryColor(color) {
-      return self.primary_color = color;
-    },
-    setSecondaryColor: function setSecondaryColor(color) {
-      return self.secondary_color = color;
-    },
-    setTertiaryColor: function setTertiaryColor(color) {
-      return self.tertiary_color = color;
-    },
-    setTextColor: function setTextColor(color) {
-      return self.text_color = color;
-    },
-    setOutlineColor: function setOutlineColor(color) {
-      return self.outline_color = color;
-    },
-    setAccentColor: function setAccentColor(color) {
-      return self.accent_color = color;
-    }
-  };
-});
+var styles = {"wrapper":"_MacoWrapperComponent-module__wrapper__2QN4S"};
 
-var ThemeContext = React.createContext(themes.weyland);
+var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","button":"_ToolbarComponent-module__button__11AN1","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
 
-var styles$1 = {"toolbar":"_3H9OD","activeButton":"_nBqTk","button":"_11AN1","itemDecoration":"_2AS8M","disableHover":"_3mDwQ"};
+var UIContext = React__default.createContext({});
 
-var styles$2 = {"drawer":"_HZEnU","activeButton":"_3TP9j","subDropDown":"_dUGHr","openUp":"_3ixui","openLeft":"_1Nafv","disableHover":"_2YRIx"};
+var styles$2 = {"drawer":"_DropDownComponent-module__drawer__HZEnU","activeButton":"_DropDownComponent-module__activeButton__3TP9j","subDropDown":"_DropDownComponent-module__subDropDown__dUGHr","openUp":"_DropDownComponent-module__openUp__3ixui","openLeft":"_DropDownComponent-module__openLeft__1Nafv","disableHover":"_DropDownComponent-module__disableHover__2YRIx"};
 
 var style = {
   drawer: {
-    width: "0px",
-    top: "0px",
-    left: "0px"
+    width: '0px',
+    top: '0px',
+    left: '0px'
   }
 };
 var DropDown = mobxReact.observer(function (props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
   var mainRef = React.useRef(null);
 
   var _useState = React.useState(null),
@@ -264,7 +199,7 @@ DropDown.defaultProps = {
 DropDown.propTypes = {};
 
 var Toolbar = mobxReact.observer(function (props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
   var mainRef = React.useRef(null);
 
   var _useState = React.useState(null),
@@ -465,19 +400,20 @@ var MacoWrapper = mobxReact.observer(function (props) {
 
   return /*#__PURE__*/React__default.createElement("div", {
     className: styles.wrapper
-  }, /*#__PURE__*/React__default.createElement(ThemeContext.Provider, {
-    value: store.ui.theme
+  }, /*#__PURE__*/React__default.createElement(UIContext.Provider, {
+    value: store.ui
   }, /*#__PURE__*/React__default.createElement(Toolbar, {
     items: props.titlebar
   }), /*#__PURE__*/React__default.createElement(ContextMenu, {
     items: store.ui.context.contextmenu
   }), /*#__PURE__*/React__default.createElement("div", {
-    style: {
+    className: props.className,
+    style: _extends({
       width: '100%',
       height: '100%',
       position: 'absolute',
       backgroundColor: store.ui.theme.tertiary_color
-    },
+    }, props.style),
     onContextMenu: function onContextMenu() {
       return handleContextMenu();
     }
@@ -488,10 +424,10 @@ MacoWrapper.defaultProps = {
   titlebar: {}
 };
 
-var styles$3 = {"panel":"_2yteA","title_bar":"_2bArp","subtitle":"_Mh0_d","panel_content":"_2tcNH","fullscreen":"_1HmTw","collapsed":"_qKCgk","horizontal":"_3ExTZ","vertical":"_1MHdL","floating":"_3aE5b","resizeHandle":"_2cemD","resizeSE":"_25SKY","resizeE":"_3lwm2","resizeS":"_p_Skn","resizeN":"_UmDS3","resizeNW":"_3RvlH","resizeNE":"_37vdB","resizeSW":"_1FPl3","resizeW":"_3ey4p","moveHandle":"_2RvpC","dragContainer":"_1DDNn","indicators":"_NiV_D","indicator":"_1kQjp","tooltip":"_2H2yT","tooltip_symbol":"_1fFBX","tooltip_content":"_3wcYC"};
+var styles$3 = {"panel":"_PanelComponent-module__panel__2yteA","panelSelect":"_PanelComponent-module__panelSelect__7Ulh3","title_bar":"_PanelComponent-module__title_bar__2bArp","subtitle":"_PanelComponent-module__subtitle__Mh0_d","panel_content":"_PanelComponent-module__panel_content__2tcNH","fullscreen":"_PanelComponent-module__fullscreen__1HmTw","collapsed":"_PanelComponent-module__collapsed__qKCgk","horizontal":"_PanelComponent-module__horizontal__3ExTZ","vertical":"_PanelComponent-module__vertical__1MHdL","floating":"_PanelComponent-module__floating__3aE5b","resizeHandle":"_PanelComponent-module__resizeHandle__2cemD","resizeSE":"_PanelComponent-module__resizeSE__25SKY","resizeE":"_PanelComponent-module__resizeE__3lwm2","resizeS":"_PanelComponent-module__resizeS__p_Skn","resizeN":"_PanelComponent-module__resizeN__UmDS3","resizeNW":"_PanelComponent-module__resizeNW__3RvlH","resizeNE":"_PanelComponent-module__resizeNE__37vdB","resizeSW":"_PanelComponent-module__resizeSW__1FPl3","resizeW":"_PanelComponent-module__resizeW__3ey4p","moveHandle":"_PanelComponent-module__moveHandle__2RvpC","dragContainer":"_PanelComponent-module__dragContainer__1DDNn","indicators":"_PanelComponent-module__indicators__NiV_D","indicator":"_PanelComponent-module__indicator__1kQjp","tooltip":"_PanelComponent-module__tooltip__2H2yT","tooltip_symbol":"_PanelComponent-module__tooltip_symbol__1fFBX","tooltip_content":"_PanelComponent-module__tooltip_content__3wcYC"};
 
 var Tooltip = mobxReact.observer(function (props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var _useState = React.useState(false),
       show = _useState[0],
@@ -531,7 +467,8 @@ var Tooltip = mobxReact.observer(function (props) {
 var Panel = mobxReact.observer(function (props) {
   var _classNames, _classNames2;
 
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
+  var ui = React.useContext(UIContext);
   var wrapperElement = React.useRef(null);
 
   var _useState3 = React.useState(props.expanded),
@@ -814,18 +751,6 @@ var Panel = mobxReact.observer(function (props) {
 
   var hasTitle = props.showTitle && (props.title || props.onRemove || props.collapsible || props.floating);
   var borderColor = focused ? context.accent_color : context.outline_color;
-  var dblClickTitle = null;
-
-  if (props.canFullscreen) {
-    dblClickTitle = handleFullscreen;
-  } else if (props.collapsible) {
-    dblClickTitle = function dblClickTitle() {
-      return setExpanded(!expanded);
-    };
-  } else if (props.canFloat) {
-    dblClickTitle = handleFloat;
-  }
-
   React.useLayoutEffect(function () {
     setExpanded(props.expanded);
   }, [props.expanded]);
@@ -874,7 +799,6 @@ var Panel = mobxReact.observer(function (props) {
     }
   }, expanded ? '▾' : '▸'), /*#__PURE__*/React__default.createElement("div", {
     className: styles$3.dragContainer,
-    onDoubleClick: dblClickTitle,
     onClick: props.collapsible && !props.canFullscreen ? function () {
       return setExpanded(!expanded);
     } : null
@@ -882,7 +806,17 @@ var Panel = mobxReact.observer(function (props) {
     className: styles$3.moveHandle,
     onTouchStart: handleMoveStart,
     onMouseDown: handleMoveStart
-  }), /*#__PURE__*/React__default.createElement("legend", null, /*#__PURE__*/React__default.createElement("strong", null, props.title))), /*#__PURE__*/React__default.createElement("div", {
+  }), props.onPanelSelect !== undefined ? /*#__PURE__*/React__default.createElement("select", {
+    title: "select the panel to display",
+    className: styles$3.panelSelect,
+    onChange: props.onPanelSelect,
+    defaultValue: props.uuid
+  }, Object.values(ui.panelVariants).map(function (e) {
+    return /*#__PURE__*/React__default.createElement("option", {
+      key: e.id,
+      value: e.id
+    }, e.title);
+  })) : /*#__PURE__*/React__default.createElement("legend", null, /*#__PURE__*/React__default.createElement("strong", null, props.title))), /*#__PURE__*/React__default.createElement("div", {
     className: styles$3.subtitle
   }, props.subtitle), props.indicators && /*#__PURE__*/React__default.createElement("div", {
     className: styles$3.indicators
@@ -1059,11 +993,12 @@ var GenericPanel = mobxReact.observer(function (props) {
     onFloat: props.panel.setFloating,
     onPositionChange: props.panel.setPosition,
     onDimensionsChange: props.panel.setDimensions,
-    onFullscreen: props.panel.setFullscreen
+    onFullscreen: props.panel.setFullscreen,
+    onPanelSelect: props.onPanelSelect
   }, props.children);
 });
 
-var styles$4 = {"text":"_1oiY2"};
+var styles$4 = {"text":"_TextComponent-module__text__1oiY2"};
 
 var Text = function Text(props) {
   return /*#__PURE__*/React__default.createElement("div", {
@@ -1072,10 +1007,10 @@ var Text = function Text(props) {
   }, props.children);
 };
 
-var styles$5 = {"wrapper":"_1mSUC"};
+var styles$5 = {"wrapper":"_ControlGroupComponent-module__wrapper__1mSUC"};
 
 var ControlGroup = function ControlGroup(props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
   return /*#__PURE__*/React__default.createElement("div", {
     className: styles$5.wrapper
   }, /*#__PURE__*/React__default.createElement("fieldset", {
@@ -1089,16 +1024,16 @@ var ControlGroup = function ControlGroup(props) {
       color: context.primary_color
     }
   }, /*#__PURE__*/React__default.createElement("strong", null, props.name)), /*#__PURE__*/React__default.createElement("div", null, React__default.Children.map(props.children, function (child) {
-    var input_width = 100.0;
+    var inputWidth = 100.0;
 
     if (props.children.length) {
-      input_width = 100.0 / props.children.length;
+      inputWidth = 100.0 / props.children.length;
     }
 
     if (React__default.isValidElement(child)) {
       return React__default.cloneElement(child, {
         style: {
-          width: input_width + "%"
+          width: inputWidth + "%"
         }
       });
     }
@@ -1142,7 +1077,7 @@ useObserver.propTypes = {
   callback: PropTypes.func
 };
 
-var styles$6 = {"wrapper":"_1CWdl","horizontal":"_Bk5vO","vertical":"_2PDvd","drag_container":"_H0gkt","drag_handle_visible":"_1f5SD","drag_handle":"_2--MZ","panel_container":"_HNP-M","split_container":"_2lgi-","split_detached":"_3QIeQ","debug":"_1CADw","empty":"_2JebP","panel_content":"_2Gxvh"};
+var styles$6 = {"wrapper":"_SplitContainer-module__wrapper__1CWdl","horizontal":"_SplitContainer-module__horizontal__Bk5vO","vertical":"_SplitContainer-module__vertical__2PDvd","drag_container":"_SplitContainer-module__drag_container__H0gkt","drag_handle_visible":"_SplitContainer-module__drag_handle_visible__1f5SD","drag_handle":"_SplitContainer-module__drag_handle__2--MZ","panel_container":"_SplitContainer-module__panel_container__HNP-M","split_container":"_SplitContainer-module__split_container__2lgi-","split_detached":"_SplitContainer-module__split_detached__3QIeQ","debug":"_SplitContainer-module__debug__1CADw","empty":"_SplitContainer-module__empty__2JebP","panel_content":"_SplitContainer-module__panel_content__2Gxvh"};
 
 var Split = function Split(_ref) {
   var _ref$id = _ref.id,
@@ -1159,7 +1094,7 @@ var Split = function Split(_ref) {
 var SplitContainer = function SplitContainer(props) {
   var _classNames;
 
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var distributeSplits = function distributeSplits() {
     var count = props.children.length;
@@ -1422,22 +1357,23 @@ SplitContainer.propTypes = {
   updateFlag: PropTypes.bool
 };
 
-var styles$7 = {"wrapper":"_wIgZx","panel_content":"_jO4g0","vertical":"_V6QbL","horizontal":"_2lf1N","drag_container":"_3-f3R","drag_handle":"_3QuuK","panel_container":"_2NjEi","layout_container":"_3nmhc","float_container":"_2l4sw","debug":"_2rD68","empty":"_2YyYx"};
+var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
 
 var LayoutContainer = mobxReact.observer(function (props) {
-  var _classNames;
+  var _classNames4;
 
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
+  var ui = React.useContext(UIContext);
   var isVertical = props.layout.direction === 'VERTICAL';
   var isEmpty = props.layout.isEmpty;
-  var wrapper_element = React.useRef(null);
+  var wrapperElement = React.useRef(null);
 
   var handleResize = function handleResize(e, layout) {
     function handleMove(e) {
       if (e.touches) e = e.touches[0];
 
       if (e.pageX) {
-        var bounds = wrapper_element.current.getBoundingClientRect();
+        var bounds = wrapperElement.current.getBoundingClientRect();
         var pos;
 
         if (isVertical) {
@@ -1454,7 +1390,7 @@ var LayoutContainer = mobxReact.observer(function (props) {
       if (e.touches && e.touches[0]) e = e.touches[0];
 
       if (e.pageX) {
-        var bounds = wrapper_element.current.getBoundingClientRect();
+        var bounds = wrapperElement.current.getBoundingClientRect();
         var pos;
 
         if (isVertical) {
@@ -1478,103 +1414,145 @@ var LayoutContainer = mobxReact.observer(function (props) {
   };
 
   var handleContextMenu = function handleContextMenu(e, layout) {
+    var result = {};
+    Object.values(ui.panelVariants).forEach(function (panel) {
+      var _extends2;
+
+      result = _extends({}, result, (_extends2 = {}, _extends2[panel.id] = {
+        id: panel.id,
+        label: panel.title,
+        onClick: function onClick() {
+          props.layout.addPanel(panel, layout);
+        }
+      }, _extends2));
+    });
+    ui.context.setContextmenu({
+      addPanel: {
+        id: 'addPanel',
+        label: 'add panel',
+        dropDown: result
+      },
+      distributeLayout: {
+        id: 'DistributeLayout',
+        label: 'distribute layout',
+        onClick: props.layout.distributeChildren
+      }
+    });
     if (props.onContextMenu) props.onContextMenu(e, layout);
   };
 
+  var handlePanelSelect = function handlePanelSelect(e, sibling) {
+    sibling.setPanel(e.target.value);
+  };
+
+  var handlePanelRemove = function handlePanelRemove(layout) {
+    props.layout.removePanel(layout);
+  };
+
+  var generateLayout = function generateLayout() {
+    var elements = [];
+    elements = props.layout.children.map(function (sibling, i) {
+      var _classNames, _classNames2, _classNames3;
+
+      var siblings = props.layout.children;
+      var childIsLayout = sibling.children.length;
+      var hasHandle = i < props.layout.children.length - 1;
+      var size = 0;
+
+      var filterOutFloats = function filterOutFloats(s) {
+        return !s.panel || s.panel && !s.panel.floating;
+      };
+
+      var isEmpty = function isEmpty(layout) {
+        return layout.children.length && layout.children.filter(filterOutFloats).length === 0;
+      };
+
+      var isFloating = function isFloating(layout) {
+        return isEmpty(layout) || layout.panel && layout.panel.floating;
+      };
+
+      if (isFloating(sibling)) {
+        console.log(sibling.id + ' is floating');
+        hasHandle = false;
+        size = 0;
+      } else {
+        size = sibling.size;
+
+        for (var j = i - 1; j >= 0; j--) {
+          if (isFloating(siblings[j])) {
+            size += siblings[j].size;
+          } else {
+            break;
+          }
+        }
+
+        var tSum = 0;
+
+        for (var _j = i + 1; _j < siblings.length; _j++) {
+          if (isFloating(siblings[_j])) {
+            tSum += siblings[_j].size;
+            if (_j === siblings.length - 1) size += tSum;
+          } else {
+            break;
+          }
+        }
+      }
+
+      size *= 100;
+      return /*#__PURE__*/React__default.createElement(React__default.Fragment, {
+        key: sibling.id
+      }, /*#__PURE__*/React__default.createElement("div", {
+        style: isVertical ? {
+          height: size + '%'
+        } : {
+          width: size + '%'
+        },
+        className: classNames(styles$7.panel_content, (_classNames = {}, _classNames[styles$7.layout_container] = childIsLayout, _classNames[styles$7.panel_container] = !childIsLayout, _classNames[styles$7.float_container] = isFloating(sibling), _classNames))
+      }, /*#__PURE__*/React__default.createElement("div", {
+        className: styles$7.debug
+      }, size), sibling.children.length ? /*#__PURE__*/React__default.createElement(LayoutContainer, {
+        layout: sibling
+      }, props.children) : /*#__PURE__*/React__default.createElement(GenericPanel, {
+        panel: sibling.panel,
+        onPanelSelect: function onPanelSelect(e) {
+          return handlePanelSelect(e, sibling);
+        },
+        onRemove: function onRemove() {
+          return handlePanelRemove(sibling);
+        }
+      }, props.children.filter(function (child) {
+        if (child.props.panel) {
+          return child.props.panel.id === sibling.panel.id;
+        }
+      }))), hasHandle && /*#__PURE__*/React__default.createElement("div", {
+        onContextMenu: function onContextMenu(e) {
+          return handleContextMenu(e, sibling);
+        },
+        className: classNames(styles$7.drag_container, (_classNames2 = {}, _classNames2[styles$7.vertical] = isVertical, _classNames2[styles$7.horizontal] = !isVertical, _classNames2)),
+        onTouchStart: function onTouchStart(e) {
+          return handleResize(e, sibling);
+        },
+        onMouseDown: function onMouseDown(e) {
+          return handleResize(e, sibling);
+        }
+      }, /*#__PURE__*/React__default.createElement("div", {
+        className: classNames(styles$7.drag_handle, (_classNames3 = {}, _classNames3[styles$7.vertical] = isVertical, _classNames3[styles$7.horizontal] = !isVertical, _classNames3)),
+        style: {
+          backgroundColor: context.accent_color,
+          borderColor: context.primary_color
+        }
+      })));
+    });
+    return elements;
+  };
+
   return /*#__PURE__*/React__default.createElement("div", {
-    ref: wrapper_element,
+    ref: wrapperElement,
     style: {
       backgroundColor: context.tertiary_color
     },
-    className: classNames(styles$7.wrapper, (_classNames = {}, _classNames[styles$7.vertical] = isVertical, _classNames[styles$7.horizontal] = !isVertical, _classNames[styles$7.empty] = isEmpty, _classNames))
-  }, props.layout.children.map(function (sibling, i) {
-    var _classNames2, _classNames3, _classNames4;
-
-    var siblings = props.layout.children;
-    var hasHandle = i < props.layout.children.length - 1;
-    var childIsLayout = sibling.children.length;
-    var size = 0;
-
-    var filterOutFloats = function filterOutFloats(s) {
-      return !s.panel || s.panel && !s.panel.floating;
-    };
-
-    var filterOutEmptyLayouts = function filterOutEmptyLayouts(s) {
-      return !s.isEmpty;
-    };
-
-    var empty = sibling.children.length && sibling.children.filter(filterOutFloats).length === 0;
-    var isFloating = sibling.panel && sibling.panel.floating;
-
-    if (i < siblings.length - 1) {
-      size = sibling ? sibling.size : 0;
-
-      if (siblings[i + 1].panel && siblings[i + 1].panel.floating) {
-        size += props.layout.children[i + 1].size;
-        if (i === siblings.length - 2) hasHandle = false;
-      }
-
-      if (isFloating) {
-        hasHandle = false;
-        size = 0;
-      }
-    } else {
-      if (isFloating || empty) {
-        hasHandle = false;
-        size = 0;
-      } else {
-        size = 1 - siblings.slice(0, -1).filter(filterOutFloats).filter(filterOutEmptyLayouts).reduce(function (a, b) {
-          return a + b.size;
-        }, 0);
-      }
-    }
-
-    if (i < siblings.length - 1 && siblings[i + 1].floating && i === siblings.length - 2) {
-      size = 1 - siblings.slice(0, i).filter(filterOutFloats).filter(filterOutEmptyLayouts).reduce(function (a, b) {
-        return a + b.size;
-      }, 0);
-    }
-
-    if (sibling && !isFloating && !empty && siblings.filter(filterOutFloats).filter(filterOutEmptyLayouts).length === 1) {
-      size = 1;
-      hasHandle = false;
-    }
-
-    size *= 100;
-    return /*#__PURE__*/React__default.createElement(React__default.Fragment, {
-      key: sibling.id
-    }, /*#__PURE__*/React__default.createElement("div", {
-      style: isVertical ? {
-        height: size + '%'
-      } : {
-        width: size + '%'
-      },
-      className: classNames(styles$7.panel_content, (_classNames2 = {}, _classNames2[styles$7.layout_container] = childIsLayout, _classNames2[styles$7.panel_container] = !childIsLayout, _classNames2[styles$7.float_container] = isFloating, _classNames2))
-    }, sibling.children.length ? /*#__PURE__*/React__default.createElement(LayoutContainer, {
-      layout: sibling
-    }, props.children) : props.children.filter(function (child) {
-      if (child.props.panel) {
-        return child.props.panel.id === sibling.id;
-      } else {
-        return child.props.id === sibling.id;
-      }
-    })), hasHandle && /*#__PURE__*/React__default.createElement("div", {
-      onContextMenu: handleContextMenu,
-      className: classNames(styles$7.drag_container, (_classNames3 = {}, _classNames3[styles$7.vertical] = isVertical, _classNames3[styles$7.horizontal] = !isVertical, _classNames3))
-    }, /*#__PURE__*/React__default.createElement("div", {
-      className: classNames(styles$7.drag_handle, (_classNames4 = {}, _classNames4[styles$7.vertical] = isVertical, _classNames4[styles$7.horizontal] = !isVertical, _classNames4)),
-      style: {
-        backgroundColor: context.accent_color,
-        borderColor: context.primary_color
-      },
-      onTouchStart: function onTouchStart(e) {
-        return handleResize(e, sibling);
-      },
-      onMouseDown: function onMouseDown(e) {
-        return handleResize(e, sibling);
-      }
-    })));
-  }));
+    className: classNames(styles$7.wrapper, (_classNames4 = {}, _classNames4[styles$7.vertical] = isVertical, _classNames4[styles$7.horizontal] = !isVertical, _classNames4[styles$7.empty] = isEmpty, _classNames4))
+  }, generateLayout());
 });
 LayoutContainer.defaultProps = {
   size: 100,
@@ -1582,14 +1560,14 @@ LayoutContainer.defaultProps = {
 };
 LayoutContainer.propTypes = {};
 
-var styles$8 = {"wrapper":"_3YMIz","pagecontent":"_2QZA5","pagenav":"_1nlPP"};
+var styles$8 = {"wrapper":"_PagesContainer-module__wrapper__3YMIz","pagecontent":"_PagesContainer-module__pagecontent__2QZA5","pagenav":"_PagesContainer-module__pagenav__1nlPP"};
 
 var Pages = function Pages(props) {
   var _useState = React.useState(0),
       currentPage = _useState[0],
       setCurrentPage = _useState[1];
 
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var handlePreviousPage = function handlePreviousPage() {
     if (currentPage > 0) setCurrentPage(currentPage - 1);
@@ -1619,10 +1597,10 @@ var Pages = function Pages(props) {
   }, '>'), /*#__PURE__*/React__default.createElement("span", null, currentPage + 1 + " of " + props.children.length)));
 };
 
-var styles$9 = {"wrapper":"_38eCI","wrapper_inner":"_2obra"};
+var styles$9 = {"wrapper":"_InputBool-module__wrapper__38eCI","wrapper_inner":"_InputBool-module__wrapper_inner__2obra"};
 
 var InputBool = mobxReact.observer(function (props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var updateValue = function updateValue(e) {
     return props.onChange(e.target.checked, e.target.value);
@@ -1651,12 +1629,12 @@ var InputBool = mobxReact.observer(function (props) {
   })));
 });
 
-var styles$a = {"wrapper":"_2vWWU","wrapper_inner":"_1KItv","dragOverlay":"_2-zBM"};
+var styles$a = {"wrapper":"_InputFloat-module__wrapper__2vWWU","wrapper_inner":"_InputFloat-module__wrapper_inner__1KItv","dragOverlay":"_InputFloat-module__dragOverlay__2-zBM"};
 
 var position = [0, 0];
 var base_value = 0;
 var InputFloat = mobxReact.observer(function (props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var handleChange = function handleChange(e) {
     return props.onChange(Number(e.target.value));
@@ -1703,20 +1681,20 @@ var InputFloat = mobxReact.observer(function (props) {
         props.onChange(output_value);
       }
 
-      document.removeEventListener("mousemove", handleDrag);
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchmove", handleDrag);
-      document.removeEventListener("touchend", handleDragEnd);
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDrag);
+      document.removeEventListener('touchend', handleDragEnd);
       dragging = false;
     }
 
     if (e.touches && e.touches[0]) e = e.touches[0];
     position = [e.pageX, e.pageY];
     base_value = props.value;
-    document.addEventListener("mousemove", handleDrag);
-    document.addEventListener("mouseup", handleDragEnd);
-    document.addEventListener("touchmove", handleDrag);
-    document.addEventListener("touchend", handleDragEnd);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDrag);
+    document.addEventListener('touchend', handleDragEnd);
   };
 
   var value = parseFloat(props.value).toFixed(2);
@@ -1764,10 +1742,10 @@ InputFloat.propTypes = {
   inputStyle: PropTypes.object
 };
 
-var styles$b = {"wrapper":"_1B9B8","wrapper_inner":"_2i8h4"};
+var styles$b = {"wrapper":"_InputSelect-module__wrapper__1B9B8","wrapper_inner":"_InputSelect-module__wrapper_inner__2i8h4"};
 
 var InputSelect = function InputSelect(props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var handleChange = function handleChange(e) {
     return props.onChange(e.target.value);
@@ -1801,12 +1779,12 @@ var InputSelect = function InputSelect(props) {
   }))));
 };
 
-var styles$c = {"wrapper":"_3sg2E","slider_track":"_1S-tO","handle":"_BhBAn","vertical":"_2cOVj","horizontal":"_MEKW8","sleeve":"_3EORW"};
+var styles$c = {"wrapper":"_InputSlider-module__wrapper__3sg2E","slider_track":"_InputSlider-module__slider_track__1S-tO","handle":"_InputSlider-module__handle__BhBAn","vertical":"_InputSlider-module__vertical__2cOVj","horizontal":"_InputSlider-module__horizontal__MEKW8","sleeve":"_InputSlider-module__sleeve__3EORW"};
 
 var slider_bounds = null;
 
 var InputSlider = function InputSlider(props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
   var slider_element = React.useRef(null);
 
   var handleDragStart = function handleDragStart(e) {
@@ -1820,8 +1798,8 @@ var InputSlider = function InputSlider(props) {
 
         var _value = _position * (props.max - props.min) + props.min;
 
-        if (_position <= 0.00) _value = props.min;
-        if (_position >= 1.00) _value = props.max;
+        if (_position <= 0.0) _value = props.min;
+        if (_position >= 1.0) _value = props.max;
         props.onChange(Math.floor(_value / props.step) * props.step);
       }
     }
@@ -1832,14 +1810,14 @@ var InputSlider = function InputSlider(props) {
       var position = (x - slider_bounds.x) / slider_bounds.width;
       var value = position * (props.max - props.min) + props.min;
 
-      if (position >= 0.00 && position <= 1.0) {
+      if (position >= 0.0 && position <= 1.0) {
         props.onChange(Math.floor(value / props.step) * props.step);
       }
 
-      document.removeEventListener("mousemove", handleDrag);
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchmove", handleDrag);
-      document.removeEventListener("touchend", handleDragEnd);
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDrag);
+      document.removeEventListener('touchend', handleDragEnd);
     }
 
     if (e.touches && e.touches[0]) e = e.touches[0];
@@ -1851,14 +1829,14 @@ var InputSlider = function InputSlider(props) {
     console.log('position', position);
     console.log('value', value);
 
-    if (position >= 0.00 && position <= 1.0) {
+    if (position >= 0.0 && position <= 1.0) {
       props.onChange(Math.floor(value / props.step) * props.step);
     }
 
-    document.addEventListener("mousemove", handleDrag);
-    document.addEventListener("mouseup", handleDragEnd);
-    document.addEventListener("touchmove", handleDrag);
-    document.addEventListener("touchend", handleDragEnd);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDrag);
+    document.addEventListener('touchend', handleDragEnd);
   };
 
   var handleFloatDrag = function handleFloatDrag(v) {
@@ -1903,10 +1881,10 @@ InputSlider.propTypes = {
   style: PropTypes.object
 };
 
-var styles$d = {"wrapper":"_3e2_F","wrapper_inner":"_2csGd"};
+var styles$d = {"wrapper":"_InputColor-module__wrapper__3e2_F","wrapper_inner":"_InputColor-module__wrapper_inner__2csGd"};
 
 var InputColor = function InputColor(props) {
-  var context = React.useContext(ThemeContext);
+  var context = React.useContext(UIContext).theme;
 
   var handleChange = function handleChange(e) {
     return props.onChange(e.target.value);
@@ -1945,7 +1923,7 @@ var InputColor = function InputColor(props) {
   })));
 };
 
-var ContextMenuItem = mobxStateTree.types.model("ContextMenuItem", {
+var ContextMenuItem = mobxStateTree.types.model('ContextMenuItem', {
   id: mobxStateTree.types.identifier,
   label: mobxStateTree.types.frozen(),
   buttons: mobxStateTree.types.frozen(),
@@ -1957,7 +1935,7 @@ var ContextMenuItem = mobxStateTree.types.model("ContextMenuItem", {
     onClick: function onClick() {}
   };
 });
-var Context = mobxStateTree.types.model("Context", {})["volatile"](function (self) {
+var Context = mobxStateTree.types.model('Context', {})["volatile"](function (self) {
   return {
     contextmenu: {},
     keylistener: tinykeys(window, {}),
@@ -1979,9 +1957,9 @@ var Context = mobxStateTree.types.model("Context", {})["volatile"](function (sel
   };
 });
 
-var Panel$1 = mobxStateTree.types.model("Panel", {
+var Panel$1 = mobxStateTree.types.model('Panel', {
   id: mobxStateTree.types.identifier,
-  component_type: "",
+  component_type: '',
   title: mobxStateTree.types.maybe(mobxStateTree.types.string),
   subtitle: mobxStateTree.types.maybe(mobxStateTree.types.string),
   showTitle: true,
@@ -2042,16 +2020,15 @@ var Panel$1 = mobxStateTree.types.model("Panel", {
   };
 });
 
-var Layout = mobxStateTree.types.model("Layout", {
+var Layout = mobxStateTree.types.model('Layout', {
   id: mobxStateTree.types.identifier,
-  title: "Layout",
+  title: 'Layout',
   size: 0,
-  panel: mobxStateTree.types.maybe(mobxStateTree.types.safeReference(Panel$1)),
+  panel: mobxStateTree.types.maybe(Panel$1),
   children: mobxStateTree.types.array(mobxStateTree.types.late(function () {
     return Layout;
   })),
-  panels: mobxStateTree.types.maybe(mobxStateTree.types.map(Panel$1)),
-  direction: mobxStateTree.types.optional(mobxStateTree.types.enumeration(["VERTICAL", "HORIZONTAL"]), "HORIZONTAL")
+  direction: mobxStateTree.types.optional(mobxStateTree.types.enumeration(['VERTICAL', 'HORIZONTAL']), 'HORIZONTAL')
 }).views(function (self) {
   return {
     get isEmpty() {
@@ -2073,18 +2050,19 @@ var Layout = mobxStateTree.types.model("Layout", {
       self.siblings = mobxStateTree.getParent(self);
       self.rootStore = mobxStateTree.getRoot(self);
     },
-    adjust: function adjust(size) {
-      var self_index = self.siblings.indexOf(self);
-      var adjusted_size = size;
-      var sum = self_index > 0 ? self.siblings.slice(0, self_index).filter(function (s) {
-        return !s.floating;
-      }).reduce(function (a, b) {
-        return a + b.size;
-      }, 0) : 0;
-      adjusted_size = size - sum;
-      if (adjusted_size > 100) adjusted_size = 100;
-      if (adjusted_size < 0) adjusted_size = 0;
-      self.setSize(adjusted_size);
+    adjust: function adjust(position) {
+      var selfIndex = self.siblings.indexOf(self);
+      var sum = 0;
+
+      for (var i = 0; i < selfIndex; i++) {
+        sum += self.siblings[i].size;
+      }
+
+      var previousSize = self.size;
+      var adjustedSize = position - sum;
+      self.setSize(adjustedSize);
+      var nextSibling = self.siblings[selfIndex + 1];
+      nextSibling.setSize(nextSibling.size + (previousSize - adjustedSize));
     },
     distributeChildren: function distributeChildren() {
       self.children.forEach(function (e, i) {
@@ -2095,36 +2073,108 @@ var Layout = mobxStateTree.types.model("Layout", {
     setSize: function setSize(size) {
       self.size = size;
     },
-    addPanel: function addPanel(panel) {
-      if (typeof panel === "string" && self.rootStore.panelVariants[panel]) {
-        panel = self.rootStore.panelVariants[panel];
-      }
-
-      var layout = Layout.create({
-        id: panel.id,
-        panel: panel.id,
-        size: 1 / self.children.length
+    setPanel: function setPanel(panelId) {
+      var newpanel = _extends({}, self.rootStore.ui.panelVariants[panelId], {
+        floating: self.panel.floating,
+        dimensions: [].concat(self.panel.dimensions),
+        position: [].concat(self.panel.position)
       });
-      self.panels.put(panel);
-      self.children.push(layout);
+
+      self.panel = newpanel;
+      self.title = self.rootStore.ui.panelVariants[panelId].title;
+    },
+    addPanel: function addPanel(panel, after) {
+      var insertAfter = self.children.indexOf(after);
+      self.children.splice(insertAfter + 1, 0, Layout.create({
+        id: nanoid.nanoid(),
+        panel: panel,
+        size: 1 / self.children.length
+      }));
+      self.distributeChildren();
     },
     removePanel: function removePanel(panel) {
-      if (self.panels) self.panels["delete"](panel);
-
       if (self.children) {
-        self.children = self.children.filter(function (e) {
-          return e.panel !== panel;
+        self.children = self.children.filter(function (child) {
+          return child !== panel;
         });
-        self.children.forEach(function (e) {
-          e.removePanel(panel);
-        });
+
+        if (self.children.length === 0) {
+          if (mobxStateTree.getParent(self, 2).removePanel) mobxStateTree.getParent(self, 2).removePanel(self);
+        }
       }
+
+      self.distributeChildren();
     },
     clear: function clear() {
       if (self.panels && self.children) {
         self.panels.clear();
         self.children = [];
       }
+    }
+  };
+});
+
+var themes = {
+  'weyland': {
+    primary_color: '#ffffff',
+    secondary_color: '#C2C2C2',
+    tertiary_color: '#e0e0e0',
+    text_color: '#000000',
+    outline_color: '#aaaaaa',
+    accent_color: '#3fa3a3'
+  },
+  'yutani': {
+    primary_color: '#000000',
+    secondary_color: '#202020',
+    tertiary_color: '#303030',
+    text_color: '#ffffff',
+    outline_color: '#474747',
+    accent_color: '#3fa3a3'
+  },
+  'powershell': {
+    primary_color: '#012456',
+    secondary_color: '#304E78',
+    tertiary_color: '#233767',
+    text_color: '#ffffff',
+    outline_color: '#51578B',
+    accent_color: '#ffff00'
+  },
+  'sarah': {
+    primary_color: '#0D5439',
+    secondary_color: '#9D6C71',
+    tertiary_color: '#5b6b5c',
+    text_color: '#C9A6A6',
+    outline_color: '#aaaaaa',
+    accent_color: '#D3945A'
+  }
+};
+var Theme = mobxStateTree.types.model("Theme", _extends({}, themes.weyland)).actions(function (self) {
+  return {
+    setTheme: function setTheme(theme) {
+      self.primary_color = theme.primary_color;
+      self.secondary_color = theme.secondary_color;
+      self.tertiary_color = theme.tertiary_color;
+      self.text_color = theme.text_color;
+      self.outline_color = theme.outline_color;
+      self.accent_color = theme.accent_color;
+    },
+    setPrimaryColor: function setPrimaryColor(color) {
+      return self.primary_color = color;
+    },
+    setSecondaryColor: function setSecondaryColor(color) {
+      return self.secondary_color = color;
+    },
+    setTertiaryColor: function setTertiaryColor(color) {
+      return self.tertiary_color = color;
+    },
+    setTextColor: function setTextColor(color) {
+      return self.text_color = color;
+    },
+    setOutlineColor: function setOutlineColor(color) {
+      return self.outline_color = color;
+    },
+    setAccentColor: function setAccentColor(color) {
+      return self.accent_color = color;
     }
   };
 });
@@ -2162,8 +2212,6 @@ var UI = mobxStateTree.types.model('UI', {
           console.error("no variants found!");
         }
       }
-
-      return;
     },
     getPanel: function getPanel(id) {
       return self.panels.get(id);
@@ -2186,8 +2234,7 @@ var InputFloat$1 = InputFloat;
 var InputSelect$1 = InputSelect;
 var InputSlider$1 = InputSlider;
 var InputColor$1 = InputColor;
-var ThemeContext$1 = ThemeContext;
-var ThemeStore = Theme;
+var UIContext$1 = UIContext;
 var Themes = themes;
 var ContextStore = Context;
 var LayoutStore = Layout;
@@ -2211,9 +2258,8 @@ exports.PanelComponent = PanelComponent;
 exports.PanelStore = PanelStore;
 exports.SplitContainer = SplitContainer$1;
 exports.TextComponent = TextComponent;
-exports.ThemeContext = ThemeContext$1;
-exports.ThemeStore = ThemeStore;
 exports.Themes = Themes;
 exports.ToolbarComponent = ToolbarComponent;
+exports.UIContext = UIContext$1;
 exports.UIStore = UIStore;
 //# sourceMappingURL=index.js.map

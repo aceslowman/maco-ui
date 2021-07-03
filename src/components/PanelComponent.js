@@ -1,12 +1,12 @@
 import React, { useState, useContext, useRef, useLayoutEffect } from 'react'
 import styles from './PanelComponent.module.css'
-import ThemeContext from '../ThemeContext'
+import UIContext from '../UIContext'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { observer } from 'mobx-react'
 
 const Tooltip = observer((props) => {
-  const context = useContext(ThemeContext)
+  const context = useContext(UIContext).theme
   const [show, setShow] = useState(false)
   const [position, setPosition] = useState([0, 0, 0, 0])
 
@@ -44,7 +44,8 @@ const Tooltip = observer((props) => {
 })
 
 const Panel = observer((props) => {
-  const context = useContext(ThemeContext)
+  const context = useContext(UIContext).theme
+  const ui = useContext(UIContext)
 
   const wrapperElement = useRef(null)
 
@@ -53,7 +54,7 @@ const Panel = observer((props) => {
   const [hover, setHover] = useState(false)
 
   const handleResize = (e, direction = 'xy') => {
-	let dragging = true
+    let dragging = true
 
     const pBounds = wrapperElement.current.getBoundingClientRect()
     const initialDimensions = [pBounds.width, pBounds.height]
@@ -334,15 +335,15 @@ const Panel = observer((props) => {
     (props.title || props.onRemove || props.collapsible || props.floating)
   const borderColor = focused ? context.accent_color : context.outline_color
 
-  let dblClickTitle = null
+  // let dblClickTitle = null
 
-  if (props.canFullscreen) {
-    dblClickTitle = handleFullscreen
-  } else if (props.collapsible) {
-    dblClickTitle = () => setExpanded(!expanded)
-  } else if (props.canFloat) {
-    dblClickTitle = handleFloat
-  }
+  // if (props.canFullscreen) {
+  //   dblClickTitle = handleFullscreen
+  // } else if (props.collapsible) {
+  //   dblClickTitle = () => setExpanded(!expanded)
+  // } else if (props.canFloat) {
+  //   dblClickTitle = handleFloat
+  // }
 
   // questionable mix of controlled/uncontrolled
   useLayoutEffect(() => {
@@ -423,7 +424,9 @@ const Panel = observer((props) => {
 
           <div
             className={styles.dragContainer}
-            onDoubleClick={dblClickTitle}
+            // NOTE: double click temporarily disabled
+            // because it gets in the way of panel select
+            // onDoubleClick={dblClickTitle}
             onClick={
               props.collapsible && !props.canFullscreen
                 ? () => setExpanded(!expanded)
@@ -438,9 +441,24 @@ const Panel = observer((props) => {
               />
             )}
 
-            <legend>
-              <strong>{props.title}</strong>
-            </legend>
+            {props.onPanelSelect !== undefined ? (
+              <select
+                title='select the panel to display'
+                className={styles.panelSelect}
+                onChange={props.onPanelSelect}
+                defaultValue={props.uuid}
+              >
+                {Object.values(ui.panelVariants).map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.title}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <legend>
+                <strong>{props.title}</strong>
+              </legend>
+            )}
           </div>
 
           <div className={styles.subtitle}>{props.subtitle}</div>
@@ -628,6 +646,7 @@ export const GenericPanel = observer((props) => (
     onPositionChange={props.panel.setPosition}
     onDimensionsChange={props.panel.setDimensions}
     onFullscreen={props.panel.setFullscreen}
+    onPanelSelect={props.onPanelSelect}
   >
     {props.children}
   </Panel>

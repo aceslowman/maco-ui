@@ -34,6 +34,11 @@
 .drag_handle {
   position: relative;
   opacity: 0;
+  z-index: 3;
+}
+
+.drag_handle:hover {
+  opacity: 0.2;
 }
 
 .drag_handle.horizontal {
@@ -65,6 +70,7 @@
 .debug {
   position: absolute;
   z-index: 100;
+  visibility: hidden;
 }
 
 .empty {

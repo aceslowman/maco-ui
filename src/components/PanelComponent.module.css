@@ -9,6 +9,23 @@
   outline: none;
 }
 
+.panelSelect {
+  font-family: inherit;
+  position: absolute;
+  top: 1px;
+  width: inherit;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  background-color: transparent;
+  color: inherit;
+}
+
+.panelSelect > option {
+  color: black;
+}
+
 .title_bar {
   display: flex;
   align-content: center;
@@ -55,7 +72,7 @@
 .panel_content {
   color: inherit;
   overflow-y: auto;
-  overflow-x:hidden; /* quick fix for x scroll */
+  overflow-x: hidden; /* quick fix for x scroll */
   box-sizing: border-box;
   flex-grow: 1;
   flex-shrink: 1;
@@ -95,7 +112,7 @@
 }
 
 .resizeHandle {
-  position: absolute;  
+  position: absolute;
   border: 2px solid white;
   border-left: none;
   border-top: none;
@@ -115,7 +132,7 @@
   cursor: e-resize;
   right: -4px;
   width: 5px;
-  margin-left:2px;
+  margin-left: 2px;
   height: calc(100% - 15px);
   border: none;
 }
@@ -168,17 +185,16 @@
 }
 
 .resizeW {
-  /* background-color: purple; */
   cursor: w-resize;
   left: -4px;
   width: 5px;
-  margin-right:2px;
+  margin-right: 2px;
   height: calc(100% - 15px);
   border: none;
 }
 
 .moveHandle {
-  width: 100%;
+  width: 50%;
   height: 27px;
   /*NOTE: relates to bugs with collapse*/
   opacity: 0;
@@ -193,7 +209,7 @@
   position: relative;
 }
 
-.dragContainer>legend {
+.dragContainer > legend {
   padding: 0px 5px;
   word-break: keep-all;
   align-self: center;
@@ -221,26 +237,24 @@
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
-  z-index:3;
-} 
+  z-index: 3;
+}
 
 .tooltip_symbol {
   /* background-color: orange; */
   padding: 0px 5px;
-} 
+}
 
 .tooltip_content {
   white-space: normal;
   word-break: break-word;
-  font-size: 0.8em;  
+  font-size: 0.8em;
   max-width: 300px;
   position: fixed;
   z-index: 100;
 }
 
 .tooltip_content p {
-  padding:5px;
-  margin:0px;
+  padding: 5px;
+  margin: 0px;
 }
-
-

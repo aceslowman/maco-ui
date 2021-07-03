@@ -1,24 +1,26 @@
 import React, { useContext, useRef } from 'react'
 import classNames from 'classnames'
 import styles from './LayoutContainer.module.css'
-import ThemeContext from '../ThemeContext'
+import UIContext from '../UIContext'
+import { GenericPanel } from './PanelComponent'
 import { observer } from 'mobx-react'
 
 const LayoutContainer = observer((props) => {
-  const context = useContext(ThemeContext)
+  const context = useContext(UIContext).theme
+  const ui = useContext(UIContext)
 
-  let isVertical = props.layout.direction === 'VERTICAL'
+  const isVertical = props.layout.direction === 'VERTICAL'
 
-  let isEmpty = props.layout.isEmpty
+  const isEmpty = props.layout.isEmpty
 
-  const wrapper_element = useRef(null)
+  const wrapperElement = useRef(null)
 
   const handleResize = (e, layout) => {
     function handleMove(e) {
       if (e.touches) e = e.touches[0]
 
       if (e.pageX) {
-        const bounds = wrapper_element.current.getBoundingClientRect()
+        const bounds = wrapperElement.current.getBoundingClientRect()
 
         let pos
         if (isVertical) {
@@ -35,7 +37,7 @@ const LayoutContainer = observer((props) => {
       if (e.touches && e.touches[0]) e = e.touches[0]
 
       if (e.pageX) {
-        const bounds = wrapper_element.current.getBoundingClientRect()
+        const bounds = wrapperElement.current.getBoundingClientRect()
 
         let pos
         if (isVertical) {
@@ -62,12 +64,196 @@ const LayoutContainer = observer((props) => {
   }
 
   const handleContextMenu = (e, layout) => {
+    let result = {}
+
+    Object.values(ui.panelVariants).forEach((panel) => {
+      result = {
+        ...result,
+        [panel.id]: {
+          id: panel.id,
+          label: panel.title,
+          onClick: () => {
+            props.layout.addPanel(panel, layout)
+          }
+        }
+      }
+    })
+
+    ui.context.setContextmenu({
+      addPanel: {
+        id: 'addPanel',
+        label: 'add panel',
+        dropDown: result
+      },
+      distributeLayout: {
+        id: 'DistributeLayout',
+        label: 'distribute layout',
+        onClick: props.layout.distributeChildren
+      }
+      /* TODO reset layout */
+    })
+
     if (props.onContextMenu) props.onContextMenu(e, layout)
+  }
+
+  const handlePanelSelect = (e, sibling) => {
+    sibling.setPanel(e.target.value)
+  }
+
+  const handlePanelRemove = (layout) => {
+    props.layout.removePanel(layout)
+  }
+
+  const generateLayout = () => {
+    let elements = []
+    elements = props.layout.children.map((sibling, i) => {
+      /* 
+          this will loop through all of the components passed as
+          children, and if it is another layout, it will nest another 
+          layout inside
+        */
+      const siblings = props.layout.children
+      const childIsLayout = sibling.children.length
+      // TODO should remove the '- 1' but it causes an overflow issue
+      let hasHandle = i < props.layout.children.length - 1
+      let size = 0
+
+      const filterOutFloats = (s) => !s.panel || (s.panel && !s.panel.floating)
+
+      const isEmpty = (layout) => {
+        return (
+          layout.children.length &&
+          layout.children.filter(filterOutFloats).length === 0
+        )
+      }
+      /*
+          the benefit of applying the size calculations here
+          is that floating panels will retain their width. 
+
+          this is for the most part why there is resizing 
+          logic here AND in Layout.js. The layout holds on
+          to the width even when something is floating, and
+          then it can restore to it's original dimensions.
+      */
+      const isFloating = (layout) => {
+        return isEmpty(layout) || (layout.panel && layout.panel.floating)
+      }
+
+      if (isFloating(sibling)) {
+        console.log(sibling.id + ' is floating')
+        hasHandle = false
+        size = 0
+      } else {
+        size = sibling.size
+
+        /*  
+            scan to the left for any floats to absorb
+          */
+        for (let j = i - 1; j >= 0; j--) {
+          if (isFloating(siblings[j])) {
+            size += siblings[j].size
+          } else {
+            break
+          }
+        }
+
+        /*
+          check to see if there are floats that extend all of the
+          way to the right
+        */
+        let tSum = 0
+        for (let j = i + 1; j < siblings.length; j++) {
+          if (isFloating(siblings[j])) {
+            tSum += siblings[j].size
+            // if we make it to the end, absorb all.
+            // otherwise, another panel will take care of it
+            if (j === siblings.length - 1) size += tSum
+          } else {
+            break
+          }
+        }
+      }
+
+      size *= 100
+
+      return (
+        <React.Fragment key={sibling.id}>
+          {/* this div element contains each individual frame */}
+          <div
+            style={isVertical ? { height: size + '%' } : { width: size + '%' }}
+            className={classNames(styles.panel_content, {
+              [styles.layout_container]: childIsLayout,
+              [styles.panel_container]: !childIsLayout,
+              [styles.float_container]: isFloating(sibling)
+            })}
+          >
+            <div className={styles.debug}>{size}</div>
+            {/*  
+                if the current sibling has children, render layout,
+                otherwise display panel
+              */}
+            {sibling.children.length ? (
+              <LayoutContainer layout={sibling}>
+                {props.children}
+              </LayoutContainer>
+            ) : (
+              <GenericPanel
+                panel={sibling.panel}
+                onPanelSelect={(e) => handlePanelSelect(e, sibling)}
+                onRemove={() => handlePanelRemove(sibling)}
+              >
+                {/* 
+                    this is the main panel that surrounds the child
+                    it scans through the props.children for matching
+                    components
+                  */}
+                {props.children.filter((child) => {
+                  /* 
+                      this grabs the id that corresponds with the 
+                      panel.id
+                    */
+                  if (child.props.panel) {
+                    return child.props.panel.id === sibling.panel.id
+                  } else {
+                    // return child.props.id === sibling.id
+                  }
+                })}
+              </GenericPanel>
+            )}
+          </div>
+          {hasHandle && (
+            <div
+              onContextMenu={(e) => handleContextMenu(e, sibling)}
+              className={classNames(styles.drag_container, {
+                [styles.vertical]: isVertical,
+                [styles.horizontal]: !isVertical
+              })}
+              onTouchStart={(e) => handleResize(e, sibling)}
+              onMouseDown={(e) => handleResize(e, sibling)}
+            >
+              <div
+                className={classNames(styles.drag_handle, {
+                  [styles.vertical]: isVertical,
+                  [styles.horizontal]: !isVertical
+                })}
+                style={{
+                  backgroundColor: context.accent_color,
+                  borderColor: context.primary_color
+                }}
+                
+              />
+            </div>
+          )}
+        </React.Fragment>
+      )
+    })
+
+    return elements
   }
 
   return (
     <div
-      ref={wrapper_element}
+      ref={wrapperElement}
       style={{
         backgroundColor: context.tertiary_color
       }}
@@ -77,142 +263,7 @@ const LayoutContainer = observer((props) => {
         [styles.empty]: isEmpty
       })}
     >
-      {props.layout.children.map((sibling, i) => {
-        let siblings = props.layout.children
-        let hasHandle = i < props.layout.children.length - 1
-        let childIsLayout = sibling.children.length
-        let size = 0
-
-        let filterOutFloats = (s) => !s.panel || (s.panel && !s.panel.floating)
-        let filterOutEmptyLayouts = (s) => !s.isEmpty
-        let empty =
-          sibling.children.length &&
-          sibling.children.filter(filterOutFloats).length === 0
-
-        /*
-                    the benefit of applying the size calculations here
-                    is that floating panels will retain their width. 
-                */
-        let isFloating = sibling.panel && sibling.panel.floating
-
-        // for all panels up to the last
-        if (i < siblings.length - 1) {
-          size = sibling ? sibling.size : 0
-
-          // if the next panel is floating, absorb it
-          if (siblings[i + 1].panel && siblings[i + 1].panel.floating) {
-            // while right sibling is floating... TODO: might still need to finish this
-            // let _i = i;
-            // while (siblings[_i + 1] && siblings[_i + 1].panel.floating) {
-            //     size += props.layout.children[_i + 1].size;
-            //     _i++;
-            // }
-            size += props.layout.children[i + 1].size
-            // removes handle (and fixes overflow issue)
-            if (i === siblings.length - 2) hasHandle = false
-          }
-
-          if (isFloating) {
-            hasHandle = false
-            size = 0
-          }
-        } else {
-          // sum all splits and get the final panel width
-          if (isFloating || empty) {
-            hasHandle = false
-            size = 0
-          } else {
-            size =
-              1 -
-              siblings
-                .slice(0, -1)
-                .filter(filterOutFloats)
-                .filter(filterOutEmptyLayouts)
-                .reduce((a, b) => a + b.size, 0)
-          }
-        }
-
-        if (
-          i < siblings.length - 1 &&
-          siblings[i + 1].floating &&
-          i === siblings.length - 2
-        ) {
-          size =
-            1 -
-            siblings
-              .slice(0, i)
-              .filter(filterOutFloats)
-              .filter(filterOutEmptyLayouts)
-              .reduce((a, b) => a + b.size, 0)
-        }
-
-        if (
-          sibling &&
-          !isFloating &&
-          !empty &&
-          siblings.filter(filterOutFloats).filter(filterOutEmptyLayouts)
-            .length === 1
-        ) {
-          size = 1
-          hasHandle = false
-        }
-
-        size *= 100
-
-        return (
-          <React.Fragment key={sibling.id}>
-            <div
-              style={
-                isVertical ? { height: size + '%' } : { width: size + '%' }
-              }
-              className={classNames(styles.panel_content, {
-                [styles.layout_container]: childIsLayout,
-                [styles.panel_container]: !childIsLayout,
-                [styles.float_container]: isFloating
-              })}
-            >
-              {/* <div className={styles.debug}>
-                                {size}
-                            </div> */}
-              {sibling.children.length ? (
-                <LayoutContainer layout={sibling}>
-                  {props.children}
-                </LayoutContainer>
-              ) : (
-                props.children.filter((child) => {
-                  if (child.props.panel) {
-                    return child.props.panel.id === sibling.id
-                  } else {
-                    return child.props.id === sibling.id
-                  }
-                })
-              )}
-            </div>
-            {hasHandle && (
-              <div
-                onContextMenu={handleContextMenu}
-                className={classNames(styles.drag_container, {
-                  [styles.vertical]: isVertical,
-                  [styles.horizontal]: !isVertical
-                })}
-              >
-                <div
-                  className={classNames(styles.drag_handle, {
-                    [styles.vertical]: isVertical,
-                    [styles.horizontal]: !isVertical
-                  })}
-                  style={{
-                    backgroundColor: context.accent_color,
-                    borderColor: context.primary_color
-                  }}
-                  onTouchStart={(e) => handleResize(e, sibling)}
-                  onMouseDown={(e) => handleResize(e, sibling)}
-                ></div>
-              </div>
-            )}
-          </React.Fragment>
-        )
-      })}
+      {generateLayout()}
     </div>
   )
 })

@@ -4,127 +4,136 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 
-import RootStore from './stores/RootStore';
-import { UIStore, Themes } from 'maco-ui';
+import RootStore from './stores/RootStore'
+import { UIStore, Themes } from 'maco-ui'
 
 const panels = {
-    'about': {
-      id: 'about',
-      canRemove: true,
-      component_type: 'ABOUT',
-      title: 'About',
-      floating: false,
-      canFloat: true,
-      defaultWidth: 100,
-      defaultHeight: 200,
-      dimensions: [100, 100],
-      position: [100, 150]
-    },
+  about: {
+    id: 'about',
+    canRemove: true,
+    component_type: 'ABOUT',
+    title: 'About',
+    floating: false,
+    canFloat: true,
+    defaultWidth: 100,
+    defaultHeight: 200,
+    dimensions: [100, 100],
+    position: [100, 150]
+  },
 
-    'inputs': {
-      id: 'inputs',
-      canRemove: true,
-      component_type: 'INPUTS',
-      title: 'Inputs',
-      floating: false,
-      canFloat: true,
-      defaultWidth: 100,
-      defaultHeight: 200,
-      dimensions: [100, 100],
-      position: [100, 150]
-    },
+  inputs: {
+    id: 'inputs',
+    canRemove: true,
+    component_type: 'INPUTS',
+    title: 'Inputs',
+    floating: false,
+    canFloat: true,
+    defaultWidth: 100,
+    defaultHeight: 200,
+    dimensions: [100, 100],
+    position: [100, 150]
+  },
 
-    'colorscheme': {
-      id: 'colorscheme',
-      canRemove: true,
-      component_type: 'COLORSCHEME',
-      title: 'Colorscheme',
-      floating: false,
-      canFloat: true,
-      defaultWidth: 100,
-      defaultHeight: 200,
-      dimensions: [100, 100],
-      position: [100, 150]
-    },
+  colorscheme: {
+    id: 'colorscheme',
+    canRemove: true,
+    component_type: 'COLORSCHEME',
+    title: 'Colorscheme',
+    floating: false,
+    canFloat: true,
+    defaultWidth: 100,
+    defaultHeight: 200,
+    dimensions: [100, 100],
+    position: [100, 150]
+  },
 
-    'split': {
-      id: 'split',
-      canRemove: true,
-      component_type: 'SPLIT',
-      title: 'Split',
-      floating: false,
-      canFloat: true,
-      defaultWidth: 100,
-      defaultHeight: 200,
-      dimensions: [100, 100],
-      position: [100, 150]
-    },
-};
+  split: {
+    id: 'split',
+    canRemove: true,
+    component_type: 'SPLIT',
+    title: 'Split',
+    floating: false,
+    canFloat: true,
+    defaultWidth: 100,
+    defaultHeight: 200,
+    dimensions: [100, 100],
+    position: [100, 150]
+  }
+}
 
 const layouts = {
-  'main': {
+  main: {
     id: 'main',
     title: 'Main',
     direction: 'HORIZONTAL',
     size: 1,
-    children: [{
-        id: "about",
-        panel: "about",
-        size: 1 / 3,
+    children: [
+      {
+        id: 'about',
+        panel: panels['about'],
+        size: 1 / 3
       },
       {
-        id: "innerpanel",
+        id: 'split',
+        panel: panels['split'],
+        size: 1 / 6
+      },
+      {
+        id: 'split2',
+        panel: panels['split'],
+        size: 1 / 6
+      },
+      {
+        id: 'innerpanel',
         direction: 'VERTICAL',
-        children: [{
-            id: "colorscheme",
-            panel: "colorscheme",
-            size: 1 / 2,
+        children: [
+          {
+            id: 'colorscheme',
+            panel: panels['colorscheme'],
+            size: 2 / 3
           },
           {
-            id: "inputs",
-            panel: "inputs",
+            id: 'inputs',
+            panel: panels['inputs'],
             size: 1 / 3
           }
         ],
-        size: 1 / 3,
-      },
-    ],
-    panels: panels
+        size: 1 / 3
+      }
+    ]
   },
-  'more_inputs': {
+  more_inputs: {
     id: 'more_inputs',
     title: 'More Inputs',
     direction: 'HORIZONTAL',
     size: 1,
     children: [
       {
-        id: "about",
-        panel: "about",
-        size: 1 / 3,
+        id: 'about',
+        panel: panels['about'],
+        size: 1 / 3
       },
       {
-        id: "colorscheme",
-        panel: "colorscheme",
-        size: 1 / 3,
-      },
-    ],
-    panels: panels
+        id: 'colorscheme',
+        panel: panels['colorscheme'],
+        size: 1 / 3
+      }
+    ]
   },
-  'split_containers': {
+  split_containers: {
     id: 'split_containers',
     title: 'Split Containers',
     direction: 'HORIZONTAL',
     size: 1,
     children: [
       {
-        id: "split",
-        panel: "split",
-        size: 1,
+        id: 'split',
+        panel: panels['split'],
+        size: 1
       }
-    ],
-    panels: {'split':panels.split}
-  },
-};
+    ]
+  }
+}
 
 const mainPanel = {
   id: 'MAIN',
@@ -140,19 +149,22 @@ const mainPanel = {
   defaultHeight: 250,
   dimensions: [400, 400],
   position: [100, 100],
-  layout: layouts['split_containers'] // change default layout
-};
+  layout: layouts['main'] // change default layout
+}
 
 const root = RootStore.create({
-    ui: UIStore.create({
-        panels: {
-          MAIN: mainPanel
-        },
-        theme: Themes.weyland,
-    })
-});
+  ui: UIStore.create({
+    panels: {
+      MAIN: mainPanel
+    },
+    theme: Themes.weyland
+  })
+})
 
-root.ui.setPanelVariants(panels);
-root.ui.setLayoutVariants(layouts);
+root.ui.setPanelVariants(panels)
+root.ui.setLayoutVariants(layouts)
 
-ReactDOM.render(<App store={root}/>, document.getElementById('root'))
+ReactDOM.render(
+  <App store={root} allPanels={panels} />,
+  document.getElementById('root')
+)

@@ -8,7 +8,7 @@ import React, {
 import useResizeObserver from './hooks/ResizeHook'
 import classNames from 'classnames'
 import styles from './SplitContainer.module.css'
-import ThemeContext from '../ThemeContext'
+import UIContext from '../UIContext'
 import PropTypes from 'prop-types'
 
 class Split {
@@ -20,7 +20,7 @@ class Split {
 }
 
 const SplitContainer = (props) => {
-  const context = useContext(ThemeContext)
+  const context = useContext(UIContext).theme
 
   const distributeSplits = () => {
     const count = props.children.length
@@ -327,7 +327,7 @@ const SplitContainer = (props) => {
                       borderColor: context.accent_color
                     }}
                     onTouchStart={(e) => handlePanelResize(e, i)}
-                    onMouseDown={(e) => handlePanelResize(e, i)}                    
+                    onMouseDown={(e) => handlePanelResize(e, i)}
                   >
                     <div
                       className={classNames(styles.drag_handle, {
