@@ -1499,6 +1499,13 @@ var LayoutContainer = mobxReact.observer(function (props) {
       }
 
       size *= 100;
+      console.log('sibprop', sibling);
+      var matchingChild = !sibling.children.length ? props.children.filter(function (child) {
+        if (child.props.panel) {
+          return child.props.panel.id === sibling.panel.id;
+        }
+      })[0] : undefined;
+      console.log('match', matchingChild);
       return /*#__PURE__*/React__default.createElement(React__default.Fragment, {
         key: sibling.id
       }, /*#__PURE__*/React__default.createElement("div", {
@@ -1520,11 +1527,9 @@ var LayoutContainer = mobxReact.observer(function (props) {
         onRemove: function onRemove() {
           return handlePanelRemove(sibling);
         }
-      }, props.children.filter(function (child) {
-        if (child.props.panel) {
-          return child.props.panel.id === sibling.panel.id;
-        }
-      }))), hasHandle && /*#__PURE__*/React__default.createElement("div", {
+      }, React__default.cloneElement(matchingChild, [{
+        panel: sibling.panel
+      }]))), hasHandle && /*#__PURE__*/React__default.createElement("div", {
         onContextMenu: function onContextMenu(e) {
           return handleContextMenu(e, sibling);
         },

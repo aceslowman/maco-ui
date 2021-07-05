@@ -1324,6 +1324,13 @@ const LayoutContainer = observer(props => {
       }
 
       size *= 100;
+      console.log('sibprop', sibling);
+      const matchingChild = !sibling.children.length ? props.children.filter(child => {
+        if (child.props.panel) {
+          return child.props.panel.id === sibling.panel.id;
+        }
+      })[0] : undefined;
+      console.log('match', matchingChild);
       return /*#__PURE__*/React.createElement(React.Fragment, {
         key: sibling.id
       }, /*#__PURE__*/React.createElement("div", {
@@ -1345,11 +1352,9 @@ const LayoutContainer = observer(props => {
         panel: sibling.panel,
         onPanelSelect: e => handlePanelSelect(e, sibling),
         onRemove: () => handlePanelRemove(sibling)
-      }, props.children.filter(child => {
-        if (child.props.panel) {
-          return child.props.panel.id === sibling.panel.id;
-        }
-      }))), hasHandle && /*#__PURE__*/React.createElement("div", {
+      }, React.cloneElement(matchingChild, [{
+        panel: sibling.panel
+      }]))), hasHandle && /*#__PURE__*/React.createElement("div", {
         onContextMenu: e => handleContextMenu(e, sibling),
         className: classNames(styles$7.drag_container, {
           [styles$7.vertical]: isVertical,

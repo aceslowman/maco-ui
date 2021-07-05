@@ -176,6 +176,24 @@ const LayoutContainer = observer((props) => {
 
       size *= 100
 
+      console.log('sibprop', sibling)
+
+      const matchingChild = !sibling.children.length
+        ? props.children.filter((child) => {
+            /* 
+          this grabs the id that corresponds with the 
+          panel.id
+        */
+            if (child.props.panel) {
+              return child.props.panel.id === sibling.panel.id
+            } else {
+              // return child.props.id === sibling.id
+            }
+          })[0]
+        : undefined
+
+      console.log('match', matchingChild)
+
       return (
         <React.Fragment key={sibling.id}>
           {/* this div element contains each individual frame */}
@@ -206,18 +224,17 @@ const LayoutContainer = observer((props) => {
                     this is the main panel that surrounds the child
                     it scans through the props.children for matching
                     components
+
+                    TODO: IMPORTANT: 
+
+                      this needs to also clone and pass along the 'sibling.panel'
+                      at the moment the child only gets the uninitialized 
+                      panel object, so if they tried to, for example, call
+                      setDimensions on the panel, it fails.
                   */}
-                {props.children.filter((child) => {
-                  /* 
-                      this grabs the id that corresponds with the 
-                      panel.id
-                    */
-                  if (child.props.panel) {
-                    return child.props.panel.id === sibling.panel.id
-                  } else {
-                    // return child.props.id === sibling.id
-                  }
-                })}
+                {React.cloneElement(matchingChild, [
+                  { panel: sibling.panel } // trying this as a fix to setDimensions problem
+                ])}
               </GenericPanel>
             )}
           </div>
@@ -240,7 +257,6 @@ const LayoutContainer = observer((props) => {
                   backgroundColor: context.accent_color,
                   borderColor: context.primary_color
                 }}
-                
               />
             </div>
           )}
