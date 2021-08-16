@@ -26,8 +26,8 @@ const App = observer((props) => {
 
   const [expandedTest, setExpandedTest] = useState(true)
 
-  const mainPanel = store.ui.getPanel('MAIN')
-  const mainLayout = mainPanel.layout
+  let mainPanel = store.ui.getPanel('MAIN')
+  let mainLayout = mainPanel.layout
 
   const main_footbar = (
     <ToolbarComponent
@@ -85,13 +85,13 @@ const App = observer((props) => {
   const getPanel = (panel) => {
     switch (panel.component_type) {
       case 'ABOUT':
-        return <AboutPanel key={panel.id} panel={panel} />
+        return <AboutPanel key={panel.id} id={panel.id} />
       case 'COLORSCHEME':
-        return <ColorSchemePanel key={panel.id} panel={panel} />
+        return <ColorSchemePanel key={panel.id} id={panel.id} />
       case 'INPUTS':
-        return <InputsPanel key={panel.id} panel={panel} />
+        return <InputsPanel key={panel.id} id={panel.id} />
       case 'SPLIT':
-        return <SplitPanel key={panel.id} panel={panel} />
+        return <SplitPanel key={panel.id} id={panel.id} />
       default:
         break
     }
@@ -101,9 +101,8 @@ const App = observer((props) => {
     console.log('panel ID', panel_id)
   }
 
-  const setLayout = (layout_id) => {
-    let variant = store.ui.getLayoutVariant(layout_id)
-    mainPanel.setLayout(variant)
+  const setCustomLayout = (panel) => {
+    store.ui.applyLayoutToMainPanel(panel);
   }
 
   const panelVariantToolbar = () => {
@@ -127,17 +126,45 @@ const App = observer((props) => {
   const layoutVariantToolbar = () => {
     let result = {}
 
-    Object.keys(store.ui.layoutVariants).forEach((_e) => {
-      let e = store.ui.layoutVariants[_e]
+    Array.from(store.ui.layouts.values()).forEach((e) => {
       result = {
         ...result,
         [e.id]: {
           id: e.id,
           label: e.title,
-          onClick: () => setLayout(e.id)
+          onClick: () => setCustomLayout(e),
+          highlight: mainLayout.id === e.id,
+          buttons: {
+            button_one: {
+              id: 'button_one',
+              label: 'x',
+              title: 'remove',
+              onClick: () => {
+                // can't remove WELCOME
+                if (e.id !== 'WELCOME') {
+                  store.ui.removeLayout(e)
+                }
+              }
+            }
+          }
         }
       }
     })
+
+    result = {
+      ...result,
+      newLayout: {
+        id: 'newLayout',
+        label: '+ Save New Layout',
+        // onClick: () => store.ui.addLayout(getSnapshot(mainPanel.layout))
+        /* TODO this needs to save the outer panel data along with everything else
+        
+        SO now I am actually saving the whole main panel*/
+        onClick: () => {
+          store.ui.addNewMainLayout(getSnapshot(mainPanel))
+        }
+      }
+    }
 
     return result
   }
@@ -160,7 +187,7 @@ const App = observer((props) => {
         },
         setLayout: {
           id: 'setLayout',
-          label: 'Set Layout',
+          label: 'Set Custom Layout',
           dropDown: layoutVariantToolbar()
         }
       }}
@@ -178,7 +205,7 @@ const App = observer((props) => {
                 },
                 setLayout: {
                   id: 'setLayout',
-                  label: 'Set Layout',
+                  label: 'Set Custom Layout',
                   dropDown: layoutVariantToolbar()
                 }
               }}

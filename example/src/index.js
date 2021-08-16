@@ -101,37 +101,6 @@ const layouts = {
         size: 1 / 3
       }
     ]
-  },
-  more_inputs: {
-    id: 'more_inputs',
-    title: 'More Inputs',
-    direction: 'HORIZONTAL',
-    size: 1,
-    children: [
-      {
-        id: 'about',
-        panel: panels['about'],
-        size: 1 / 3
-      },
-      {
-        id: 'colorscheme',
-        panel: panels['colorscheme'],
-        size: 1 / 3
-      }
-    ]
-  },
-  split_containers: {
-    id: 'split_containers',
-    title: 'Split Containers',
-    direction: 'HORIZONTAL',
-    size: 1,
-    children: [
-      {
-        id: 'split',
-        panel: panels['split'],
-        size: 1
-      }
-    ]
   }
 }
 
@@ -147,8 +116,8 @@ const mainPanel = {
   canFullscreen: true, // temp disabled
   defaultWidth: 250,
   defaultHeight: 250,
-  dimensions: [400, 400],
-  position: [100, 100],
+  dimensions: [700, 500],
+  position: [window.innerWidth / 2 - 350, window.innerHeight / 2 - 250],
   layout: layouts['main'] // change default layout
 }
 
@@ -162,7 +131,7 @@ const root = RootStore.create({
 })
 
 root.ui.setPanelVariants(panels)
-root.ui.setLayoutVariants(layouts)
+root.ui.setCustomLayouts({'WELCOME': {...mainPanel, id: 'WELCOME', title: 'Welcome'}})
 
 ReactDOM.render(
   <App store={root} allPanels={panels} />,

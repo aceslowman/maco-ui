@@ -64,16 +64,38 @@ const LayoutContainer = observer((props) => {
   }
 
   const handleContextMenu = (e, layout) => {
-    let result = {}
+    let addPanels = {}
+    let addHorizontalPanels = {}
+    let addVerticalPanels = {}
 
     Object.values(ui.panelVariants).forEach((panel) => {
-      result = {
-        ...result,
+      addPanels = {
+        ...addPanels,
         [panel.id]: {
           id: panel.id,
           label: panel.title,
           onClick: () => {
             props.layout.addPanel(panel, layout)
+          }
+        }
+      }
+      addHorizontalPanels = {
+        ...addHorizontalPanels,
+        [panel.id]: {
+          id: panel.id,
+          label: panel.title,
+          onClick: () => {
+            props.layout.addPanel(panel, layout, 'HORIZONTAL')
+          }
+        }
+      }
+      addVerticalPanels = {
+        ...addVerticalPanels,
+        [panel.id]: {
+          id: panel.id,
+          label: panel.title,
+          onClick: () => {
+            props.layout.addPanel(panel, layout, 'VERTICAL')
           }
         }
       }
@@ -83,14 +105,59 @@ const LayoutContainer = observer((props) => {
       addPanel: {
         id: 'addPanel',
         label: 'add panel',
-        dropDown: result
+        dropDown: addPanels
+      },
+      addLayout: {
+        id: 'addLayout',
+        label: 'add split layout',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            dropDown: addHorizontalPanels
+            // onClick: () => {
+            //   props.layout.addLayout('HORIZONTAL', layout)
+            // }
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            dropDown: addVerticalPanels
+            // onClick: () => {
+            //   props.layout.addLayout('VERTICAL', layout)
+            // }
+          }
+        }
+      },
+      changeOrientation: {
+        id: 'changeOrientation',
+        label: 'layout direction',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            active: props.layout.direction === 'HORIZONTAL',
+            onClick: () => {
+              props.layout.setDirection('HORIZONTAL')
+              ui.context.setContextmenu() // removes menu
+            }
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            active: props.layout.direction === 'VERTICAL',
+            onClick: () => {
+              props.layout.setDirection('VERTICAL')
+              ui.context.setContextmenu() // removes menu
+            }
+          }
+        }
       },
       distributeLayout: {
         id: 'DistributeLayout',
         label: 'distribute layout',
         onClick: props.layout.distributeChildren
       }
-      /* TODO reset layout */
     })
 
     if (props.onContextMenu) props.onContextMenu(e, layout)
@@ -113,12 +180,15 @@ const LayoutContainer = observer((props) => {
           layout inside
         */
       const siblings = props.layout.children
-      const childIsLayout = sibling.children.length
-      // TODO should remove the '- 1' but it causes an overflow issue
+      const childIsLayout = sibling.children.length && sibling.direction
+
       let hasHandle = i < props.layout.children.length - 1
       let size = 0
 
       const filterOutFloats = (s) => !s.panel || (s.panel && !s.panel.floating)
+
+      const isFirst = i === 0
+      const isLast = i === siblings.length - 1
 
       const isEmpty = (layout) => {
         return (
@@ -140,7 +210,6 @@ const LayoutContainer = observer((props) => {
       }
 
       if (isFloating(sibling)) {
-        console.log(sibling.id + ' is floating')
         hasHandle = false
         size = 0
       } else {
@@ -176,10 +245,9 @@ const LayoutContainer = observer((props) => {
 
       size *= 100
 
-      console.log('sibprop', sibling)
-
-      const matchingChild = !sibling.children.length
+      const matchingChild = !childIsLayout
         ? props.children.filter((child) => {
+            // console.log(child.props)
             /* 
           this grabs the id that corresponds with the 
           panel.id
@@ -187,15 +255,38 @@ const LayoutContainer = observer((props) => {
             if (child.props.panel) {
               return child.props.panel.id === sibling.panel.id
             } else {
-              // return child.props.id === sibling.id
+              return child.props.id === sibling.panel.id
             }
           })[0]
         : undefined
 
-      console.log('match', matchingChild)
-
       return (
         <React.Fragment key={sibling.id}>
+          {/* 
+            insert handle at the START of series. 
+            no resize but should have a contextmenu 
+            to insert elements
+          */}
+          {isFirst && (
+            <div
+              onContextMenu={(e) => handleContextMenu(e, null)}
+              className={classNames(styles.drag_container, {
+                [styles.vertical]: isVertical,
+                [styles.horizontal]: !isVertical
+              })}
+            >
+              <div
+                className={classNames(styles.drag_handle, styles.firstDrag, {
+                  [styles.vertical]: isVertical,
+                  [styles.horizontal]: !isVertical
+                })}
+                style={{
+                  backgroundColor: context.accent_color,
+                  borderColor: context.primary_color
+                }}
+              />
+            </div>
+          )}
           {/* this div element contains each individual frame */}
           <div
             style={isVertical ? { height: size + '%' } : { width: size + '%' }}
@@ -224,20 +315,15 @@ const LayoutContainer = observer((props) => {
                     this is the main panel that surrounds the child
                     it scans through the props.children for matching
                     components
-
-                    TODO: IMPORTANT: 
-
-                      this needs to also clone and pass along the 'sibling.panel'
-                      at the moment the child only gets the uninitialized 
-                      panel object, so if they tried to, for example, call
-                      setDimensions on the panel, it fails.
                   */}
-                {React.cloneElement(matchingChild, [
-                  { panel: sibling.panel } // trying this as a fix to setDimensions problem
-                ])}
+                {matchingChild &&
+                  React.cloneElement(matchingChild, [
+                    { panel: sibling.panel } // trying this as a fix to setDimensions problem
+                  ])}
               </GenericPanel>
             )}
           </div>
+
           {hasHandle && (
             <div
               onContextMenu={(e) => handleContextMenu(e, sibling)}
@@ -250,6 +336,31 @@ const LayoutContainer = observer((props) => {
             >
               <div
                 className={classNames(styles.drag_handle, {
+                  [styles.vertical]: isVertical,
+                  [styles.horizontal]: !isVertical
+                })}
+                style={{
+                  backgroundColor: context.accent_color,
+                  borderColor: context.primary_color
+                }}
+              />
+            </div>
+          )}
+          {/* 
+            insert handle at the very end of series. 
+            no resize but should have a contextmenu 
+            to insert elements
+          */}
+          {isLast && (
+            <div
+              onContextMenu={(e) => handleContextMenu(e, sibling)}
+              className={classNames(styles.drag_container, {
+                [styles.vertical]: isVertical,
+                [styles.horizontal]: !isVertical
+              })}
+            >
+              <div
+                className={classNames(styles.drag_handle, styles.lastDrag, {
                   [styles.vertical]: isVertical,
                   [styles.horizontal]: !isVertical
                 })}

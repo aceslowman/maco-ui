@@ -107,7 +107,7 @@ const DropDown = observer((props) => {
                   key={'sub' + item.id}
                   onClick={(e) => handleSubDropDown(e, i, item)}
                   className={classNames({
-                    [styles.activeButton]: i === activeItem,
+                    [styles.activeButton]: item.active ?? i === activeItem,
                     [styles.openLeft]: props.openLeft,
                     [styles.openUp]: props.openUp
                   })}
@@ -140,7 +140,7 @@ const DropDown = observer((props) => {
               <div
                 key={item.id}
                 className={classNames({
-                  [styles.activeButton]: i === activeItem,
+                  [styles.activeButton]: item.active ?? i === activeItem,
                   [styles.disableHover]: item.disableHover,
                   [styles.openLeft]: props.openLeft,
                   [styles.openUp]: props.openUp

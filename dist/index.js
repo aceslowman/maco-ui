@@ -30,7 +30,7 @@ function _extends() {
 
 var styles = {"wrapper":"_MacoWrapperComponent-module__wrapper__2QN4S"};
 
-var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","button":"_ToolbarComponent-module__button__11AN1","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
+var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","button":"_ToolbarComponent-module__button__11AN1","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
 
 var UIContext = React__default.createContext({});
 
@@ -130,7 +130,7 @@ var DropDown = mobxReact.observer(function (props) {
     var item = props.items[k];
 
     if (item.dropDown) {
-      var _classNames;
+      var _item$active, _classNames;
 
       return /*#__PURE__*/React__default.createElement("div", {
         key: item.id,
@@ -144,7 +144,7 @@ var DropDown = mobxReact.observer(function (props) {
         onClick: function onClick(e) {
           return handleSubDropDown(e, i, item);
         },
-        className: classNames((_classNames = {}, _classNames[styles$2.activeButton] = i === activeItem, _classNames[styles$2.openLeft] = props.openLeft, _classNames[styles$2.openUp] = props.openUp, _classNames))
+        className: classNames((_classNames = {}, _classNames[styles$2.activeButton] = (_item$active = item.active) != null ? _item$active : i === activeItem, _classNames[styles$2.openLeft] = props.openLeft, _classNames[styles$2.openUp] = props.openUp, _classNames))
       }, item.label, /*#__PURE__*/React__default.createElement("span", null, props.openLeft ? '<' : '>')), i === activeItem && subDropDownId && /*#__PURE__*/React__default.createElement("div", {
         key: item.id,
         style: {
@@ -159,11 +159,11 @@ var DropDown = mobxReact.observer(function (props) {
         openUp: props.openUp
       })));
     } else {
-      var _classNames2;
+      var _item$active2, _classNames2;
 
       return /*#__PURE__*/React__default.createElement("div", {
         key: item.id,
-        className: classNames((_classNames2 = {}, _classNames2[styles$2.activeButton] = i === activeItem, _classNames2[styles$2.disableHover] = item.disableHover, _classNames2[styles$2.openLeft] = props.openLeft, _classNames2[styles$2.openUp] = props.openUp, _classNames2)),
+        className: classNames((_classNames2 = {}, _classNames2[styles$2.activeButton] = (_item$active2 = item.active) != null ? _item$active2 : i === activeItem, _classNames2[styles$2.disableHover] = item.disableHover, _classNames2[styles$2.openLeft] = props.openLeft, _classNames2[styles$2.openUp] = props.openUp, _classNames2)),
         style: {
           display: 'flex',
           width: '100%'
@@ -479,10 +479,6 @@ var Panel = mobxReact.observer(function (props) {
       focused = _useState4[0],
       setFocused = _useState4[1];
 
-  var _useState5 = React.useState(false),
-      hover = _useState5[0],
-      setHover = _useState5[1];
-
   var handleResize = function handleResize(e, direction) {
     if (direction === void 0) {
       direction = 'xy';
@@ -719,14 +715,13 @@ var Panel = mobxReact.observer(function (props) {
   };
 
   var handleFocus = function handleFocus(e) {
-    setHover(true);
+    e.stopPropagation();
     setFocused(true);
     if (props.onFocus) props.onFocus(e);
   };
 
   var handleBlur = function handleBlur() {
     wrapperElement.current.blur();
-    setHover(false);
     setFocused(false);
     if (props.onBlur) props.onBlur(false);
   };
@@ -763,7 +758,7 @@ var Panel = mobxReact.observer(function (props) {
       border: props.border && !props.fullscreen ? '1px solid ' + borderColor : 'none',
       height: props.collapsible ? 'auto' : '100%',
       margin: props.gutters ? props.gutterSize : 0,
-      zIndex: hover ? 5 : 2
+      zIndex: focused ? 5 : 2
     }, mainStyling, props.style),
     onFocus: handleFocus,
     onBlur: handleBlur,
@@ -1357,10 +1352,10 @@ SplitContainer.propTypes = {
   updateFlag: PropTypes.bool
 };
 
-var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
+var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","lastDrag":"_LayoutContainer-module__lastDrag__202qi","firstDrag":"_LayoutContainer-module__firstDrag__2G8v5","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
 
 var LayoutContainer = mobxReact.observer(function (props) {
-  var _classNames4;
+  var _classNames8;
 
   var context = React.useContext(UIContext).theme;
   var ui = React.useContext(UIContext);
@@ -1414,23 +1409,79 @@ var LayoutContainer = mobxReact.observer(function (props) {
   };
 
   var handleContextMenu = function handleContextMenu(e, layout) {
-    var result = {};
+    var addPanels = {};
+    var addHorizontalPanels = {};
+    var addVerticalPanels = {};
     Object.values(ui.panelVariants).forEach(function (panel) {
-      var _extends2;
+      var _extends2, _extends3, _extends4;
 
-      result = _extends({}, result, (_extends2 = {}, _extends2[panel.id] = {
+      addPanels = _extends({}, addPanels, (_extends2 = {}, _extends2[panel.id] = {
         id: panel.id,
         label: panel.title,
         onClick: function onClick() {
           props.layout.addPanel(panel, layout);
         }
       }, _extends2));
+      addHorizontalPanels = _extends({}, addHorizontalPanels, (_extends3 = {}, _extends3[panel.id] = {
+        id: panel.id,
+        label: panel.title,
+        onClick: function onClick() {
+          props.layout.addPanel(panel, layout, 'HORIZONTAL');
+        }
+      }, _extends3));
+      addVerticalPanels = _extends({}, addVerticalPanels, (_extends4 = {}, _extends4[panel.id] = {
+        id: panel.id,
+        label: panel.title,
+        onClick: function onClick() {
+          props.layout.addPanel(panel, layout, 'VERTICAL');
+        }
+      }, _extends4));
     });
     ui.context.setContextmenu({
       addPanel: {
         id: 'addPanel',
         label: 'add panel',
-        dropDown: result
+        dropDown: addPanels
+      },
+      addLayout: {
+        id: 'addLayout',
+        label: 'add split layout',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            dropDown: addHorizontalPanels
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            dropDown: addVerticalPanels
+          }
+        }
+      },
+      changeOrientation: {
+        id: 'changeOrientation',
+        label: 'layout direction',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            active: props.layout.direction === 'HORIZONTAL',
+            onClick: function onClick() {
+              props.layout.setDirection('HORIZONTAL');
+              ui.context.setContextmenu();
+            }
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            active: props.layout.direction === 'VERTICAL',
+            onClick: function onClick() {
+              props.layout.setDirection('VERTICAL');
+              ui.context.setContextmenu();
+            }
+          }
+        }
       },
       distributeLayout: {
         id: 'DistributeLayout',
@@ -1452,16 +1503,19 @@ var LayoutContainer = mobxReact.observer(function (props) {
   var generateLayout = function generateLayout() {
     var elements = [];
     elements = props.layout.children.map(function (sibling, i) {
-      var _classNames, _classNames2, _classNames3;
+      var _classNames, _classNames2, _classNames3, _classNames4, _classNames5, _classNames6, _classNames7;
 
       var siblings = props.layout.children;
-      var childIsLayout = sibling.children.length;
+      var childIsLayout = sibling.children.length && sibling.direction;
       var hasHandle = i < props.layout.children.length - 1;
       var size = 0;
 
       var filterOutFloats = function filterOutFloats(s) {
         return !s.panel || s.panel && !s.panel.floating;
       };
+
+      var isFirst = i === 0;
+      var isLast = i === siblings.length - 1;
 
       var isEmpty = function isEmpty(layout) {
         return layout.children.length && layout.children.filter(filterOutFloats).length === 0;
@@ -1472,7 +1526,6 @@ var LayoutContainer = mobxReact.observer(function (props) {
       };
 
       if (isFloating(sibling)) {
-        console.log(sibling.id + ' is floating');
         hasHandle = false;
         size = 0;
       } else {
@@ -1499,22 +1552,33 @@ var LayoutContainer = mobxReact.observer(function (props) {
       }
 
       size *= 100;
-      console.log('sibprop', sibling);
-      var matchingChild = !sibling.children.length ? props.children.filter(function (child) {
+      var matchingChild = !childIsLayout ? props.children.filter(function (child) {
         if (child.props.panel) {
           return child.props.panel.id === sibling.panel.id;
+        } else {
+          return child.props.id === sibling.panel.id;
         }
       })[0] : undefined;
-      console.log('match', matchingChild);
       return /*#__PURE__*/React__default.createElement(React__default.Fragment, {
         key: sibling.id
+      }, isFirst && /*#__PURE__*/React__default.createElement("div", {
+        onContextMenu: function onContextMenu(e) {
+          return handleContextMenu(e, null);
+        },
+        className: classNames(styles$7.drag_container, (_classNames = {}, _classNames[styles$7.vertical] = isVertical, _classNames[styles$7.horizontal] = !isVertical, _classNames))
       }, /*#__PURE__*/React__default.createElement("div", {
+        className: classNames(styles$7.drag_handle, styles$7.firstDrag, (_classNames2 = {}, _classNames2[styles$7.vertical] = isVertical, _classNames2[styles$7.horizontal] = !isVertical, _classNames2)),
+        style: {
+          backgroundColor: context.accent_color,
+          borderColor: context.primary_color
+        }
+      })), /*#__PURE__*/React__default.createElement("div", {
         style: isVertical ? {
           height: size + '%'
         } : {
           width: size + '%'
         },
-        className: classNames(styles$7.panel_content, (_classNames = {}, _classNames[styles$7.layout_container] = childIsLayout, _classNames[styles$7.panel_container] = !childIsLayout, _classNames[styles$7.float_container] = isFloating(sibling), _classNames))
+        className: classNames(styles$7.panel_content, (_classNames3 = {}, _classNames3[styles$7.layout_container] = childIsLayout, _classNames3[styles$7.panel_container] = !childIsLayout, _classNames3[styles$7.float_container] = isFloating(sibling), _classNames3))
       }, /*#__PURE__*/React__default.createElement("div", {
         className: styles$7.debug
       }, size), sibling.children.length ? /*#__PURE__*/React__default.createElement(LayoutContainer, {
@@ -1527,13 +1591,13 @@ var LayoutContainer = mobxReact.observer(function (props) {
         onRemove: function onRemove() {
           return handlePanelRemove(sibling);
         }
-      }, React__default.cloneElement(matchingChild, [{
+      }, matchingChild && React__default.cloneElement(matchingChild, [{
         panel: sibling.panel
       }]))), hasHandle && /*#__PURE__*/React__default.createElement("div", {
         onContextMenu: function onContextMenu(e) {
           return handleContextMenu(e, sibling);
         },
-        className: classNames(styles$7.drag_container, (_classNames2 = {}, _classNames2[styles$7.vertical] = isVertical, _classNames2[styles$7.horizontal] = !isVertical, _classNames2)),
+        className: classNames(styles$7.drag_container, (_classNames4 = {}, _classNames4[styles$7.vertical] = isVertical, _classNames4[styles$7.horizontal] = !isVertical, _classNames4)),
         onTouchStart: function onTouchStart(e) {
           return handleResize(e, sibling);
         },
@@ -1541,7 +1605,18 @@ var LayoutContainer = mobxReact.observer(function (props) {
           return handleResize(e, sibling);
         }
       }, /*#__PURE__*/React__default.createElement("div", {
-        className: classNames(styles$7.drag_handle, (_classNames3 = {}, _classNames3[styles$7.vertical] = isVertical, _classNames3[styles$7.horizontal] = !isVertical, _classNames3)),
+        className: classNames(styles$7.drag_handle, (_classNames5 = {}, _classNames5[styles$7.vertical] = isVertical, _classNames5[styles$7.horizontal] = !isVertical, _classNames5)),
+        style: {
+          backgroundColor: context.accent_color,
+          borderColor: context.primary_color
+        }
+      })), isLast && /*#__PURE__*/React__default.createElement("div", {
+        onContextMenu: function onContextMenu(e) {
+          return handleContextMenu(e, sibling);
+        },
+        className: classNames(styles$7.drag_container, (_classNames6 = {}, _classNames6[styles$7.vertical] = isVertical, _classNames6[styles$7.horizontal] = !isVertical, _classNames6))
+      }, /*#__PURE__*/React__default.createElement("div", {
+        className: classNames(styles$7.drag_handle, styles$7.lastDrag, (_classNames7 = {}, _classNames7[styles$7.vertical] = isVertical, _classNames7[styles$7.horizontal] = !isVertical, _classNames7)),
         style: {
           backgroundColor: context.accent_color,
           borderColor: context.primary_color
@@ -1556,7 +1631,7 @@ var LayoutContainer = mobxReact.observer(function (props) {
     style: {
       backgroundColor: context.tertiary_color
     },
-    className: classNames(styles$7.wrapper, (_classNames4 = {}, _classNames4[styles$7.vertical] = isVertical, _classNames4[styles$7.horizontal] = !isVertical, _classNames4[styles$7.empty] = isEmpty, _classNames4))
+    className: classNames(styles$7.wrapper, (_classNames8 = {}, _classNames8[styles$7.vertical] = isVertical, _classNames8[styles$7.horizontal] = !isVertical, _classNames8[styles$7.empty] = isEmpty, _classNames8))
   }, generateLayout());
 });
 LayoutContainer.defaultProps = {
@@ -1985,7 +2060,8 @@ var Panel$1 = mobxStateTree.types.model('Panel', {
 }).actions(function (self) {
   return {
     setLayout: function setLayout(layout) {
-      self.layout = layout;
+      var newLayout = mobxStateTree.clone(layout);
+      self.layout = newLayout;
     },
     setFloating: function setFloating(f) {
       self.floating = f;
@@ -2056,45 +2132,79 @@ var Layout = mobxStateTree.types.model('Layout', {
       self.rootStore = mobxStateTree.getRoot(self);
     },
     adjust: function adjust(position) {
-      var selfIndex = self.siblings.indexOf(self);
+      var selfIndex = mobxStateTree.getParent(self).indexOf(self);
       var sum = 0;
 
       for (var i = 0; i < selfIndex; i++) {
-        sum += self.siblings[i].size;
+        sum += mobxStateTree.getParent(self)[i].size;
       }
 
       var previousSize = self.size;
       var adjustedSize = position - sum;
       self.setSize(adjustedSize);
-      var nextSibling = self.siblings[selfIndex + 1];
+      var nextSibling = mobxStateTree.getParent(self)[selfIndex + 1];
       nextSibling.setSize(nextSibling.size + (previousSize - adjustedSize));
     },
     distributeChildren: function distributeChildren() {
       self.children.forEach(function (e, i) {
-        console.log(i, (i + 1) / self.children.length);
         e.setSize(1 / self.children.length);
       });
     },
     setSize: function setSize(size) {
       self.size = size;
     },
+    setDirection: function setDirection(direction) {
+      self.direction = direction;
+    },
     setPanel: function setPanel(panelId) {
-      var newpanel = _extends({}, self.rootStore.ui.panelVariants[panelId], {
+      var newpanel = _extends({}, mobxStateTree.getRoot(self).ui.panelVariants[panelId], {
         floating: self.panel.floating,
         dimensions: [].concat(self.panel.dimensions),
         position: [].concat(self.panel.position)
       });
 
       self.panel = newpanel;
-      self.title = self.rootStore.ui.panelVariants[panelId].title;
+      self.title = mobxStateTree.getRoot(self).ui.panelVariants[panelId].title;
     },
-    addPanel: function addPanel(panel, after) {
-      var insertAfter = self.children.indexOf(after);
+    addLayout: function addLayout(orientation, after) {
+      var insertAfter = after ? self.children.indexOf(after) : -1;
       self.children.splice(insertAfter + 1, 0, Layout.create({
         id: nanoid.nanoid(),
-        panel: panel,
+        children: [Layout.create({
+          id: nanoid.nanoid() + '_child',
+          panel: {
+            id: nanoid.nanoid() + '_sub_child',
+            title: 'New Layout'
+          },
+          size: 1
+        })],
+        direction: orientation,
         size: 1 / self.children.length
       }));
+      self.distributeChildren();
+    },
+    addPanel: function addPanel(panel, after, direction) {
+      var insertAfter = after ? self.children.indexOf(after) : -1;
+
+      if (direction) {
+        self.children.splice(insertAfter + 1, 0, Layout.create({
+          id: nanoid.nanoid(),
+          children: [Layout.create({
+            id: nanoid.nanoid() + '_child',
+            panel: panel,
+            size: 1
+          })],
+          direction: direction,
+          size: 1 / self.children.length
+        }));
+      } else {
+        self.children.splice(insertAfter + 1, 0, Layout.create({
+          id: nanoid.nanoid(),
+          panel: panel,
+          size: 1 / self.children.length
+        }));
+      }
+
       self.distributeChildren();
     },
     removePanel: function removePanel(panel) {
@@ -2187,39 +2297,71 @@ var Theme = mobxStateTree.types.model("Theme", _extends({}, themes.weyland)).act
 var UI = mobxStateTree.types.model('UI', {
   panels: mobxStateTree.types.map(Panel$1),
   theme: Theme,
+  layouts: mobxStateTree.types.map(Panel$1),
   context: mobxStateTree.types.maybe(Context)
 })["volatile"](function (self) {
   return {
-    panelVariants: null,
-    layoutVariants: null
+    panelVariants: null
   };
 }).actions(function (self) {
   return {
     afterAttach: function afterAttach() {
       self.context = Context.create();
+      mobxStateTree.onSnapshot(self.theme, function () {
+        console.log('saving theme');
+        window.localStorage.setItem('theme', JSON.stringify(mobxStateTree.getSnapshot(self.theme)));
+      });
+
+      if (window.localStorage.getItem('theme')) {
+        self.theme.setTheme(JSON.parse(window.localStorage.getItem('theme')));
+      }
+
+      if (window.localStorage.getItem('layouts')) {
+        self.setCustomLayouts(JSON.parse(window.localStorage.getItem('layouts')));
+      }
     },
     setPanelVariants: function setPanelVariants(panels) {
       self.panelVariants = panels;
     },
-    setLayoutVariants: function setLayoutVariants(layouts) {
-      self.layoutVariants = layouts;
+    setCustomLayouts: function setCustomLayouts(layouts) {
+      for (var l in layouts) {
+        self.layouts.put(layouts[l]);
+      }
+    },
+    saveCustomLayouts: function saveCustomLayouts() {
+      console.log('saving layouts');
+      window.localStorage.setItem('layouts', JSON.stringify(mobxStateTree.getSnapshot(self.layouts)));
+    },
+    addNewMainLayout: function addNewMainLayout(layout, title) {
+      var newId = nanoid.nanoid(4);
+      self.layouts.put(_extends({}, layout, {
+        id: newId,
+        title: title || newId
+      }));
+      self.saveCustomLayouts();
+    },
+    removeLayout: function removeLayout(layout) {
+      self.layouts["delete"](layout.id);
+      self.saveCustomLayouts();
     },
     getPanelVariant: function getPanelVariant(id) {
       return self.panelVariants[id];
     },
-    getLayoutVariant: function getLayoutVariant(id) {
-      if (self.layoutVariants[id]) {
-        return self.layoutVariants[id];
-      } else {
-        if (self.panelVariants) {
-          console.error("variant (" + id + ") could not be found. should be one of the following: (" + Object.keys(self.panelVariants) + ")");
-        } else {
-          console.error("no variants found!");
-        }
+    getLayout: function getLayout(id) {
+      if (self.layouts.has(id)) {
+        return self.layouts.get(id);
       }
     },
     getPanel: function getPanel(id) {
       return self.panels.get(id);
+    },
+    applyLayoutToMainPanel: function applyLayoutToMainPanel(panel) {
+      var main = self.panels.get('MAIN');
+      var snap = mobxStateTree.getSnapshot(panel);
+      mobxStateTree.applySnapshot(main, _extends({}, main, snap, {
+        id: 'MAIN',
+        title: main.title
+      }));
     }
   };
 });

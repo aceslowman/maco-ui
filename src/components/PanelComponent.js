@@ -51,7 +51,6 @@ const Panel = observer((props) => {
 
   const [expanded, setExpanded] = useState(props.expanded)
   const [focused, setFocused] = useState(props.focused)
-  const [hover, setHover] = useState(false)
 
   const handleResize = (e, direction = 'xy') => {
     let dragging = true
@@ -298,16 +297,25 @@ const Panel = observer((props) => {
 
   /*
 		positions the panel on top when hovered over
+
+    TODO 
+    it's still not possible for parent elements to display
+    overtop the child element
+
+    if the parent element is currently focused, make this element 
+    temporarily parentElement.zIndex - 1
 	*/
   const handleFocus = (e) => {
-    setHover(true)
+    // this prevents the child and parent elements from focusing at once
+    e.stopPropagation()
+    // console.log('props', props)
+    // console.log('focusing', wrapperElement.current)
     setFocused(true)
     if (props.onFocus) props.onFocus(e)
   }
 
   const handleBlur = () => {
     wrapperElement.current.blur()
-    setHover(false)
     setFocused(false)
     if (props.onBlur) props.onBlur(false)
   }
@@ -369,7 +377,10 @@ const Panel = observer((props) => {
             : 'none',
         height: props.collapsible ? 'auto' : '100%',
         margin: props.gutters ? props.gutterSize : 0,
-        zIndex: hover ? 5 : 2,
+        /* TODO if the outside layout is currently focused,
+        then make the zIndex = -1 */
+        // zIndex: focused ? 5 : 2,
+        zIndex: focused ? 5 : 2,
         ...mainStyling,
         ...props.style
       }}

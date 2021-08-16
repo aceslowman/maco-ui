@@ -5,60 +5,59 @@
     flex-flow: column;
 }
 
- ._ToolbarComponent-module__toolbar__3H9OD {
-    box-sizing:border-box;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    display:flex;
-    flex-shrink:0;
-    z-index: 1;
-    /* z-index: 3; */
-    position: relative;
+._ToolbarComponent-module__toolbar__3H9OD {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  display: flex;
+  flex-shrink: 0;
+  /* z-index: 1; */
+  z-index: 4;
+  position: relative;
 }
 
 ._ToolbarComponent-module__toolbar__3H9OD h1 {
-    margin:0px 15px;
-    font-size:1.2em;
+  margin: 0px 15px;
+  font-size: 1.2em;
+}
+
+._ToolbarComponent-module__button__11AN1 {
+  padding: 2px 5px;
+  border: none;
+  border-right: 1px dotted white;
+  border-color: inherit;
+  cursor: pointer;
+  background-color: inherit;
+  color: inherit;
+  font-family: inherit;
+  white-space: pre;
 }
 
 ._ToolbarComponent-module__activeButton__nBqTk {
-    border:none;
-    border-right: 1px dotted white;    
-    border-color:inherit;
-    padding: 2px 5px;
-    background-color: white;
-    mix-blend-mode: exclusion;
-    color: black;
-    font-family:inherit;
-}
-
-._ToolbarComponent-module__button__11AN1 {    
-    padding: 2px 5px;    
-    border: none;
-    border-right: 1px dotted white;
-    border-color:inherit;
-    cursor: pointer;
-    background-color: inherit;
-    color: inherit;
-    font-family:inherit;
-    white-space: pre;
+  border: none;
+  border-right: 1px dotted white;
+  border-color: inherit;
+  padding: 2px 5px;
+  background-color: rgba(255, 255, 255, 0.75);
+  mix-blend-mode: exclusion;
+  color: black;
+  font-family: inherit;
 }
 
 ._ToolbarComponent-module__button__11AN1:hover {
-    background-color: white;
-    mix-blend-mode: exclusion;
-    color: black;
+  background-color: white;
+  mix-blend-mode: exclusion;
+  color: black;
 }
 
 ._ToolbarComponent-module__itemDecoration__2AS8M {
-    padding-left:5px;
-    font-size:0.8em;
+  padding-left: 5px;
+  font-size: 0.8em;
 }
 
 ._ToolbarComponent-module__disableHover__3mDwQ {
   pointer-events: none;
 }
-
 
 ._DropDownComponent-module__drawer__HZEnU {
     z-index: 1000;
@@ -307,12 +306,17 @@ text-align: right !important;
 }
 
 ._PanelComponent-module__moveHandle__2RvpC {
-  width: 50%;
+  width: 100%;
   height: 27px;
   /*NOTE: relates to bugs with collapse*/
   opacity: 0;
   cursor: move;
   z-index: 1;
+}
+
+._PanelComponent-module__floating__3aE5b ._PanelComponent-module__dragContainer__1DDNn {
+  /* width: 80%; */
+  padding-right: 20px;
 }
 
 ._PanelComponent-module__dragContainer__1DDNn {
@@ -552,7 +556,7 @@ text-align: right !important;
 ._LayoutContainer-module__drag_handle__3QuuK {
   position: relative;
   opacity: 0;
-  z-index: 3;
+  z-index: 1;
 }
 
 ._LayoutContainer-module__drag_handle__3QuuK:hover {
@@ -571,6 +575,26 @@ text-align: right !important;
   height: 10px;
   top: -5px;
   cursor: row-resize;
+}
+
+._LayoutContainer-module__lastDrag__202qi._LayoutContainer-module__horizontal__2lf1N {
+  cursor: initial;
+  left: -10px;
+}
+
+._LayoutContainer-module__lastDrag__202qi._LayoutContainer-module__vertical__V6QbL {
+  cursor: initial;
+  top: -10px;
+}
+
+._LayoutContainer-module__firstDrag__2G8v5._LayoutContainer-module__horizontal__2lf1N {
+  cursor: initial;
+  left: 0px;
+}
+
+._LayoutContainer-module__firstDrag__2G8v5._LayoutContainer-module__vertical__V6QbL {
+  cursor: initial;
+  top: 0px;
 }
 
 ._LayoutContainer-module__panel_container__2NjEi {

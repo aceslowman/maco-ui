@@ -3,13 +3,13 @@ import { observer } from 'mobx-react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ResizeObserver from 'resize-observer-polyfill';
-import { types, getParent, getRoot } from 'mobx-state-tree';
+import { types, clone, getParent, getRoot, onSnapshot, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import tinykeys from 'tinykeys';
 import { nanoid } from 'nanoid';
 
 var styles = {"wrapper":"_MacoWrapperComponent-module__wrapper__2QN4S"};
 
-var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","button":"_ToolbarComponent-module__button__11AN1","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
+var styles$1 = {"toolbar":"_ToolbarComponent-module__toolbar__3H9OD","button":"_ToolbarComponent-module__button__11AN1","activeButton":"_ToolbarComponent-module__activeButton__nBqTk","itemDecoration":"_ToolbarComponent-module__itemDecoration__2AS8M","disableHover":"_ToolbarComponent-module__disableHover__3mDwQ"};
 
 const UIContext = React.createContext({});
 
@@ -99,7 +99,7 @@ const DropDown = observer(props => {
         key: 'sub' + item.id,
         onClick: e => handleSubDropDown(e, i, item),
         className: classNames({
-          [styles$2.activeButton]: i === activeItem,
+          [styles$2.activeButton]: item.active ?? i === activeItem,
           [styles$2.openLeft]: props.openLeft,
           [styles$2.openUp]: props.openUp
         })
@@ -121,7 +121,7 @@ const DropDown = observer(props => {
       return /*#__PURE__*/React.createElement("div", {
         key: item.id,
         className: classNames({
-          [styles$2.activeButton]: i === activeItem,
+          [styles$2.activeButton]: item.active ?? i === activeItem,
           [styles$2.disableHover]: item.disableHover,
           [styles$2.openLeft]: props.openLeft,
           [styles$2.openUp]: props.openUp
@@ -386,7 +386,6 @@ const Panel = observer(props => {
   const wrapperElement = useRef(null);
   const [expanded, setExpanded] = useState(props.expanded);
   const [focused, setFocused] = useState(props.focused);
-  const [hover, setHover] = useState(false);
 
   const handleResize = (e, direction = 'xy') => {
     let dragging = true;
@@ -618,14 +617,13 @@ const Panel = observer(props => {
   };
 
   const handleFocus = e => {
-    setHover(true);
+    e.stopPropagation();
     setFocused(true);
     if (props.onFocus) props.onFocus(e);
   };
 
   const handleBlur = () => {
     wrapperElement.current.blur();
-    setHover(false);
     setFocused(false);
     if (props.onBlur) props.onBlur(false);
   };
@@ -666,7 +664,7 @@ const Panel = observer(props => {
       border: props.border && !props.fullscreen ? '1px solid ' + borderColor : 'none',
       height: props.collapsible ? 'auto' : '100%',
       margin: props.gutters ? props.gutterSize : 0,
-      zIndex: hover ? 5 : 2,
+      zIndex: focused ? 5 : 2,
       ...mainStyling,
       ...props.style
     },
@@ -1188,7 +1186,7 @@ SplitContainer.propTypes = {
   updateFlag: PropTypes.bool
 };
 
-var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
+var styles$7 = {"wrapper":"_LayoutContainer-module__wrapper__wIgZx","panel_content":"_LayoutContainer-module__panel_content__jO4g0","vertical":"_LayoutContainer-module__vertical__V6QbL","horizontal":"_LayoutContainer-module__horizontal__2lf1N","drag_container":"_LayoutContainer-module__drag_container__3-f3R","drag_handle":"_LayoutContainer-module__drag_handle__3QuuK","lastDrag":"_LayoutContainer-module__lastDrag__202qi","firstDrag":"_LayoutContainer-module__firstDrag__2G8v5","panel_container":"_LayoutContainer-module__panel_container__2NjEi","layout_container":"_LayoutContainer-module__layout_container__3nmhc","float_container":"_LayoutContainer-module__float_container__2l4sw","debug":"_LayoutContainer-module__debug__2rD68","empty":"_LayoutContainer-module__empty__2YyYx"};
 
 const LayoutContainer = observer(props => {
   const context = useContext(UIContext).theme;
@@ -1243,9 +1241,11 @@ const LayoutContainer = observer(props => {
   };
 
   const handleContextMenu = (e, layout) => {
-    let result = {};
+    let addPanels = {};
+    let addHorizontalPanels = {};
+    let addVerticalPanels = {};
     Object.values(ui.panelVariants).forEach(panel => {
-      result = { ...result,
+      addPanels = { ...addPanels,
         [panel.id]: {
           id: panel.id,
           label: panel.title,
@@ -1254,12 +1254,70 @@ const LayoutContainer = observer(props => {
           }
         }
       };
+      addHorizontalPanels = { ...addHorizontalPanels,
+        [panel.id]: {
+          id: panel.id,
+          label: panel.title,
+          onClick: () => {
+            props.layout.addPanel(panel, layout, 'HORIZONTAL');
+          }
+        }
+      };
+      addVerticalPanels = { ...addVerticalPanels,
+        [panel.id]: {
+          id: panel.id,
+          label: panel.title,
+          onClick: () => {
+            props.layout.addPanel(panel, layout, 'VERTICAL');
+          }
+        }
+      };
     });
     ui.context.setContextmenu({
       addPanel: {
         id: 'addPanel',
         label: 'add panel',
-        dropDown: result
+        dropDown: addPanels
+      },
+      addLayout: {
+        id: 'addLayout',
+        label: 'add split layout',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            dropDown: addHorizontalPanels
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            dropDown: addVerticalPanels
+          }
+        }
+      },
+      changeOrientation: {
+        id: 'changeOrientation',
+        label: 'layout direction',
+        dropDown: {
+          horizontal: {
+            id: 'horizontal',
+            label: 'horizontal',
+            active: props.layout.direction === 'HORIZONTAL',
+            onClick: () => {
+              props.layout.setDirection('HORIZONTAL');
+              ui.context.setContextmenu();
+            }
+          },
+          vertical: {
+            id: 'vertical',
+            label: 'vertical',
+            active: props.layout.direction === 'VERTICAL',
+            onClick: () => {
+              props.layout.setDirection('VERTICAL');
+              ui.context.setContextmenu();
+            }
+          }
+        }
       },
       distributeLayout: {
         id: 'DistributeLayout',
@@ -1282,11 +1340,14 @@ const LayoutContainer = observer(props => {
     let elements = [];
     elements = props.layout.children.map((sibling, i) => {
       const siblings = props.layout.children;
-      const childIsLayout = sibling.children.length;
+      const childIsLayout = sibling.children.length && sibling.direction;
       let hasHandle = i < props.layout.children.length - 1;
       let size = 0;
 
       const filterOutFloats = s => !s.panel || s.panel && !s.panel.floating;
+
+      const isFirst = i === 0;
+      const isLast = i === siblings.length - 1;
 
       const isEmpty = layout => {
         return layout.children.length && layout.children.filter(filterOutFloats).length === 0;
@@ -1297,7 +1358,6 @@ const LayoutContainer = observer(props => {
       };
 
       if (isFloating(sibling)) {
-        console.log(sibling.id + ' is floating');
         hasHandle = false;
         size = 0;
       } else {
@@ -1324,16 +1384,31 @@ const LayoutContainer = observer(props => {
       }
 
       size *= 100;
-      console.log('sibprop', sibling);
-      const matchingChild = !sibling.children.length ? props.children.filter(child => {
+      const matchingChild = !childIsLayout ? props.children.filter(child => {
         if (child.props.panel) {
           return child.props.panel.id === sibling.panel.id;
+        } else {
+          return child.props.id === sibling.panel.id;
         }
       })[0] : undefined;
-      console.log('match', matchingChild);
       return /*#__PURE__*/React.createElement(React.Fragment, {
         key: sibling.id
+      }, isFirst && /*#__PURE__*/React.createElement("div", {
+        onContextMenu: e => handleContextMenu(e, null),
+        className: classNames(styles$7.drag_container, {
+          [styles$7.vertical]: isVertical,
+          [styles$7.horizontal]: !isVertical
+        })
       }, /*#__PURE__*/React.createElement("div", {
+        className: classNames(styles$7.drag_handle, styles$7.firstDrag, {
+          [styles$7.vertical]: isVertical,
+          [styles$7.horizontal]: !isVertical
+        }),
+        style: {
+          backgroundColor: context.accent_color,
+          borderColor: context.primary_color
+        }
+      })), /*#__PURE__*/React.createElement("div", {
         style: isVertical ? {
           height: size + '%'
         } : {
@@ -1352,7 +1427,7 @@ const LayoutContainer = observer(props => {
         panel: sibling.panel,
         onPanelSelect: e => handlePanelSelect(e, sibling),
         onRemove: () => handlePanelRemove(sibling)
-      }, React.cloneElement(matchingChild, [{
+      }, matchingChild && React.cloneElement(matchingChild, [{
         panel: sibling.panel
       }]))), hasHandle && /*#__PURE__*/React.createElement("div", {
         onContextMenu: e => handleContextMenu(e, sibling),
@@ -1364,6 +1439,21 @@ const LayoutContainer = observer(props => {
         onMouseDown: e => handleResize(e, sibling)
       }, /*#__PURE__*/React.createElement("div", {
         className: classNames(styles$7.drag_handle, {
+          [styles$7.vertical]: isVertical,
+          [styles$7.horizontal]: !isVertical
+        }),
+        style: {
+          backgroundColor: context.accent_color,
+          borderColor: context.primary_color
+        }
+      })), isLast && /*#__PURE__*/React.createElement("div", {
+        onContextMenu: e => handleContextMenu(e, sibling),
+        className: classNames(styles$7.drag_container, {
+          [styles$7.vertical]: isVertical,
+          [styles$7.horizontal]: !isVertical
+        })
+      }, /*#__PURE__*/React.createElement("div", {
+        className: classNames(styles$7.drag_handle, styles$7.lastDrag, {
           [styles$7.vertical]: isVertical,
           [styles$7.horizontal]: !isVertical
         }),
@@ -1785,7 +1875,8 @@ const Panel$1 = types.model('Panel', {
   parent_layout: null
 })).actions(self => ({
   setLayout: layout => {
-    self.layout = layout;
+    const newLayout = clone(layout);
+    self.layout = newLayout;
   },
   setFloating: f => {
     self.floating = f;
@@ -1846,44 +1937,78 @@ const Layout = types.model('Layout', {
     self.rootStore = getRoot(self);
   },
   adjust: position => {
-    const selfIndex = self.siblings.indexOf(self);
+    const selfIndex = getParent(self).indexOf(self);
     let sum = 0;
 
     for (let i = 0; i < selfIndex; i++) {
-      sum += self.siblings[i].size;
+      sum += getParent(self)[i].size;
     }
 
     const previousSize = self.size;
     const adjustedSize = position - sum;
     self.setSize(adjustedSize);
-    const nextSibling = self.siblings[selfIndex + 1];
+    const nextSibling = getParent(self)[selfIndex + 1];
     nextSibling.setSize(nextSibling.size + (previousSize - adjustedSize));
   },
   distributeChildren: () => {
     self.children.forEach((e, i) => {
-      console.log(i, (i + 1) / self.children.length);
       e.setSize(1 / self.children.length);
     });
   },
   setSize: size => {
     self.size = size;
   },
+  setDirection: direction => {
+    self.direction = direction;
+  },
   setPanel: panelId => {
-    const newpanel = { ...self.rootStore.ui.panelVariants[panelId],
+    const newpanel = { ...getRoot(self).ui.panelVariants[panelId],
       floating: self.panel.floating,
       dimensions: [...self.panel.dimensions],
       position: [...self.panel.position]
     };
     self.panel = newpanel;
-    self.title = self.rootStore.ui.panelVariants[panelId].title;
+    self.title = getRoot(self).ui.panelVariants[panelId].title;
   },
-  addPanel: (panel, after) => {
-    const insertAfter = self.children.indexOf(after);
+  addLayout: (orientation, after) => {
+    const insertAfter = after ? self.children.indexOf(after) : -1;
     self.children.splice(insertAfter + 1, 0, Layout.create({
       id: nanoid(),
-      panel: panel,
+      children: [Layout.create({
+        id: nanoid() + '_child',
+        panel: {
+          id: nanoid() + '_sub_child',
+          title: 'New Layout'
+        },
+        size: 1
+      })],
+      direction: orientation,
       size: 1 / self.children.length
     }));
+    self.distributeChildren();
+  },
+  addPanel: (panel, after, direction) => {
+    const insertAfter = after ? self.children.indexOf(after) : -1;
+
+    if (direction) {
+      self.children.splice(insertAfter + 1, 0, Layout.create({
+        id: nanoid(),
+        children: [Layout.create({
+          id: nanoid() + '_child',
+          panel: panel,
+          size: 1
+        })],
+        direction: direction,
+        size: 1 / self.children.length
+      }));
+    } else {
+      self.children.splice(insertAfter + 1, 0, Layout.create({
+        id: nanoid(),
+        panel: panel,
+        size: 1 / self.children.length
+      }));
+    }
+
     self.distributeChildren();
   },
   removePanel: panel => {
@@ -1960,60 +2085,93 @@ const Theme = types.model("Theme", { ...themes.weyland
 const UI = types.model('UI', {
   panels: types.map(Panel$1),
   theme: Theme,
+  layouts: types.map(Panel$1),
   context: types.maybe(Context)
 }).volatile(self => ({
-  panelVariants: null,
-  layoutVariants: null
+  panelVariants: null
 })).actions(self => ({
   afterAttach: () => {
     self.context = Context.create();
+    onSnapshot(self.theme, () => {
+      console.log('saving theme');
+      window.localStorage.setItem('theme', JSON.stringify(getSnapshot(self.theme)));
+    });
+
+    if (window.localStorage.getItem('theme')) {
+      self.theme.setTheme(JSON.parse(window.localStorage.getItem('theme')));
+    }
+
+    if (window.localStorage.getItem('layouts')) {
+      self.setCustomLayouts(JSON.parse(window.localStorage.getItem('layouts')));
+    }
   },
   setPanelVariants: panels => {
     self.panelVariants = panels;
   },
-  setLayoutVariants: layouts => {
-    self.layoutVariants = layouts;
+  setCustomLayouts: layouts => {
+    for (const l in layouts) {
+      self.layouts.put(layouts[l]);
+    }
+  },
+  saveCustomLayouts: () => {
+    console.log('saving layouts');
+    window.localStorage.setItem('layouts', JSON.stringify(getSnapshot(self.layouts)));
+  },
+  addNewMainLayout: (layout, title) => {
+    const newId = nanoid(4);
+    self.layouts.put({ ...layout,
+      id: newId,
+      title: title || newId
+    });
+    self.saveCustomLayouts();
+  },
+  removeLayout: layout => {
+    self.layouts.delete(layout.id);
+    self.saveCustomLayouts();
   },
   getPanelVariant: id => {
     return self.panelVariants[id];
   },
-  getLayoutVariant: id => {
-    if (self.layoutVariants[id]) {
-      return self.layoutVariants[id];
-    } else {
-      if (self.panelVariants) {
-        console.error(`variant (${id}) could not be found. should be one of the following: (${Object.keys(self.panelVariants)})`);
-      } else {
-        console.error(`no variants found!`);
-      }
+  getLayout: id => {
+    if (self.layouts.has(id)) {
+      return self.layouts.get(id);
     }
   },
   getPanel: id => {
     return self.panels.get(id);
+  },
+  applyLayoutToMainPanel: panel => {
+    const main = self.panels.get('MAIN');
+    const snap = getSnapshot(panel);
+    applySnapshot(main, { ...main,
+      ...snap,
+      id: 'MAIN',
+      title: main.title
+    });
   }
 }));
 
-let MacoWrapperComponent = MacoWrapper;
-let TextComponent = Text;
-let PanelComponent = Panel;
-let GenericPanel$1 = GenericPanel;
-let ToolbarComponent = Toolbar;
-let ContextMenuComponent = ContextMenu;
-let ControlGroupComponent = ControlGroup;
-let SplitContainer$1 = SplitContainer;
-let LayoutContainer$1 = LayoutContainer;
-let PagesContainer = Pages;
-let InputBool$1 = InputBool;
-let InputFloat$1 = InputFloat;
-let InputSelect$1 = InputSelect;
-let InputSlider$1 = InputSlider;
-let InputColor$1 = InputColor;
-let UIContext$1 = UIContext;
-let Themes = themes;
-let ContextStore = Context;
-let LayoutStore = Layout;
-let PanelStore = Panel$1;
-let UIStore = UI;
+const MacoWrapperComponent = MacoWrapper;
+const TextComponent = Text;
+const PanelComponent = Panel;
+const GenericPanel$1 = GenericPanel;
+const ToolbarComponent = Toolbar;
+const ContextMenuComponent = ContextMenu;
+const ControlGroupComponent = ControlGroup;
+const SplitContainer$1 = SplitContainer;
+const LayoutContainer$1 = LayoutContainer;
+const PagesContainer = Pages;
+const InputBool$1 = InputBool;
+const InputFloat$1 = InputFloat;
+const InputSelect$1 = InputSelect;
+const InputSlider$1 = InputSlider;
+const InputColor$1 = InputColor;
+const UIContext$1 = UIContext;
+const Themes = themes;
+const ContextStore = Context;
+const LayoutStore = Layout;
+const PanelStore = Panel$1;
+const UIStore = UI;
 
 export { ContextMenuComponent, ContextStore, ControlGroupComponent, GenericPanel$1 as GenericPanel, InputBool$1 as InputBool, InputColor$1 as InputColor, InputFloat$1 as InputFloat, InputSelect$1 as InputSelect, InputSlider$1 as InputSlider, LayoutContainer$1 as LayoutContainer, LayoutStore, MacoWrapperComponent, PagesContainer, PanelComponent, PanelStore, SplitContainer$1 as SplitContainer, TextComponent, Themes, ToolbarComponent, UIContext$1 as UIContext, UIStore };
 //# sourceMappingURL=index.modern.js.map

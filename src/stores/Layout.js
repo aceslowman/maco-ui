@@ -1,4 +1,4 @@
-import { types, getParent, getRoot } from 'mobx-state-tree'
+import { types, getParent, getRoot, getSnapshot } from 'mobx-state-tree'
 import { nanoid } from 'nanoid'
 import Panel from './Panel'
 
@@ -35,7 +35,7 @@ const Layout = types
     },
 
     adjust: (position) => {
-      const selfIndex = self.siblings.indexOf(self)
+      const selfIndex = getParent(self).indexOf(self)
 
       /* 
         the sum is all panels (except for those floating) 
@@ -43,7 +43,7 @@ const Layout = types
       */
       let sum = 0
       for (let i = 0; i < selfIndex; i++) {
-        sum += self.siblings[i].size
+        sum += getParent(self)[i].size
       }
 
       const previousSize = self.size
@@ -51,19 +51,22 @@ const Layout = types
 
       self.setSize(adjustedSize)
 
-      const nextSibling = self.siblings[selfIndex + 1]
+      const nextSibling = getParent(self)[selfIndex + 1]
       nextSibling.setSize(nextSibling.size + (previousSize - adjustedSize))
     },
 
     distributeChildren: () => {
       self.children.forEach((e, i) => {
-        console.log(i, (i + 1) / self.children.length)
         e.setSize(1 / self.children.length)
       })
     },
 
     setSize: (size) => {
       self.size = size
+    },
+
+    setDirection: (direction) => {
+      self.direction = direction
     },
 
     setPanel: (panelId) => {
@@ -78,32 +81,88 @@ const Layout = types
           make sure that it retains floating, dimensions, and position
       */
       const newpanel = {
-        ...self.rootStore.ui.panelVariants[panelId],
+        ...getRoot(self).ui.panelVariants[panelId],
         floating: self.panel.floating,
         dimensions: [...self.panel.dimensions],
         position: [...self.panel.position]
       }
 
       self.panel = newpanel
-      self.title = self.rootStore.ui.panelVariants[panelId].title
+      self.title = getRoot(self).ui.panelVariants[panelId].title
     },
 
-    addPanel: (panel, after) => {
+    /* NOTE not currently in use */
+    addLayout: (orientation, after) => {
       /* 
         look for the 'after' node and insert 'panel'
-        after it 
+        after it
+        
+        if after is null, then insert at the very beginning (-1)
        */
-      const insertAfter = self.children.indexOf(after)
+      const insertAfter = after ? self.children.indexOf(after) : -1
 
       self.children.splice(
         insertAfter + 1,
         0,
         Layout.create({
           id: nanoid(),
-          panel: panel,
+          children: [
+            Layout.create({
+              id: nanoid() + '_child',
+              // panel: panel,
+              panel: {
+                id: nanoid() + '_sub_child',
+                title: 'New Layout'
+              },
+              size: 1
+            })
+          ],
+          direction: orientation,
           size: 1 / self.children.length
         })
       )
+
+      self.distributeChildren()
+    },
+
+    addPanel: (panel, after, direction) => {
+      /* 
+        look for the 'after' node and insert 'panel'
+        after it
+        
+        if after is null, then insert at the very beginning (-1)
+       */
+      const insertAfter = after ? self.children.indexOf(after) : -1
+
+      /* if direction is defined, treat it as a new layout */
+      if (direction) {
+        self.children.splice(
+          insertAfter + 1,
+          0,
+          Layout.create({
+            id: nanoid(),
+            children: [
+              Layout.create({
+                id: nanoid() + '_child',
+                panel: panel,
+                size: 1
+              })
+            ],
+            direction: direction,
+            size: 1 / self.children.length
+          })
+        )
+      } else {
+        self.children.splice(
+          insertAfter + 1,
+          0,
+          Layout.create({
+            id: nanoid(),
+            panel: panel,
+            size: 1 / self.children.length
+          })
+        )
+      }
 
       self.distributeChildren()
     },

@@ -1,4 +1,4 @@
-import { types, getParent } from 'mobx-state-tree'
+import { types, getParent, clone } from 'mobx-state-tree'
 import Layout from './Layout'
 
 const Panel = types
@@ -15,6 +15,7 @@ const Panel = types
     canFullscreen: false,
     dimensions: types.array(types.number),
     position: types.array(types.number),
+    // layout: types.maybe(types.safeReference(types.late(() => Layout)))
     layout: types.maybe(types.late(() => Layout))
   })
   .volatile((self) => ({
@@ -22,7 +23,8 @@ const Panel = types
   }))
   .actions((self) => ({
     setLayout: (layout) => {
-      self.layout = layout
+      const newLayout = clone(layout)
+      self.layout = newLayout
     },
 
     setFloating: (f) => {

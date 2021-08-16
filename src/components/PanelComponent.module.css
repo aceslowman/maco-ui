@@ -194,12 +194,17 @@
 }
 
 .moveHandle {
-  width: 50%;
+  width: 100%;
   height: 27px;
   /*NOTE: relates to bugs with collapse*/
   opacity: 0;
   cursor: move;
   z-index: 1;
+}
+
+.floating .dragContainer {
+  /* width: 80%; */
+  padding-right: 20px;
 }
 
 .dragContainer {

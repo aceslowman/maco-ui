@@ -1,7 +1,8 @@
 import _MacoWrapperComponent from './components/MacoWrapperComponent'
 
-import _PanelComponent from './components/PanelComponent'
-import { GenericPanel as _GenericPanel } from './components/PanelComponent'
+import _PanelComponent, {
+  GenericPanel as _GenericPanel
+} from './components/PanelComponent'
 import _TextComponent from './components/TextComponent'
 import _ToolbarComponent from './components/ToolbarComponent'
 import _ContextMenuComponent from './components/ContextMenuComponent'
@@ -22,33 +23,33 @@ import _UIContext from './UIContext'
 import _ContextStore from './stores/Context'
 import _LayoutStore from './stores/Layout'
 import _PanelStore from './stores/Panel'
-import _ThemeStore, { themes } from './stores/Theme'
+import { themes } from './stores/Theme'
 import _UIStore from './stores/UI'
 
-export let MacoWrapperComponent = _MacoWrapperComponent
+export const MacoWrapperComponent = _MacoWrapperComponent
 
-export let TextComponent = _TextComponent
-export let PanelComponent = _PanelComponent
-export let GenericPanel = _GenericPanel
-export let ToolbarComponent = _ToolbarComponent
-export let ContextMenuComponent = _ContextMenuComponent
-export let ControlGroupComponent = _ControlGroupComponent
-export let SplitContainer = _SplitContainer
-export let LayoutContainer = _LayoutContainer
-export let PagesContainer = _PagesContainer
+export const TextComponent = _TextComponent
+export const PanelComponent = _PanelComponent
+export const GenericPanel = _GenericPanel
+export const ToolbarComponent = _ToolbarComponent
+export const ContextMenuComponent = _ContextMenuComponent
+export const ControlGroupComponent = _ControlGroupComponent
+export const SplitContainer = _SplitContainer
+export const LayoutContainer = _LayoutContainer
+export const PagesContainer = _PagesContainer
 
-export let InputBool = _InputBool
-export let InputFloat = _InputFloat
-export let InputSelect = _InputSelect
-export let InputSlider = _InputSlider
-export let InputColor = _InputColor
+export const InputBool = _InputBool
+export const InputFloat = _InputFloat
+export const InputSelect = _InputSelect
+export const InputSlider = _InputSlider
+export const InputColor = _InputColor
 
-export let UIContext = _UIContext
+export const UIContext = _UIContext
 
-export let Themes = themes
+export const Themes = themes
 
 // STORES
-export let ContextStore = _ContextStore
-export let LayoutStore = _LayoutStore
-export let PanelStore = _PanelStore
-export let UIStore = _UIStore // main store output
+export const ContextStore = _ContextStore
+export const LayoutStore = _LayoutStore
+export const PanelStore = _PanelStore
+export const UIStore = _UIStore // main store output

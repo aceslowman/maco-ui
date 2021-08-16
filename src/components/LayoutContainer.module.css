@@ -34,7 +34,7 @@
 .drag_handle {
   position: relative;
   opacity: 0;
-  z-index: 3;
+  z-index: 1;
 }
 
 .drag_handle:hover {
@@ -53,6 +53,26 @@
   height: 10px;
   top: -5px;
   cursor: row-resize;
+}
+
+.lastDrag.horizontal {
+  cursor: initial;
+  left: -10px;
+}
+
+.lastDrag.vertical {
+  cursor: initial;
+  top: -10px;
+}
+
+.firstDrag.horizontal {
+  cursor: initial;
+  left: 0px;
+}
+
+.firstDrag.vertical {
+  cursor: initial;
+  top: 0px;
 }
 
 .panel_container {
